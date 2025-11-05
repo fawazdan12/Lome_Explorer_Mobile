@@ -18,6 +18,11 @@ import 'package:event_flow/domains/uscases/auth_uscase.dart';
 import 'package:event_flow/domains/uscases/avis_usecase.dart';
 import 'package:event_flow/domains/uscases/geo_usecase.dart';
 import 'package:event_flow/domains/uscases/lieu_evenement_uscase.dart';
+import 'package:event_flow/core/services/websocket_service.dart';
+import 'package:event_flow/data/datasource/remote/websocket_datasource.dart';
+import 'package:event_flow/data/repositories/websocket_repository_impl.dart';
+import 'package:event_flow/domains/repositories/websocket_repository.dart';
+import 'package:event_flow/core/services/notification_trigger_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +52,9 @@ Future<void> setupServiceLocator() async {
   // ==================== REPOSITORIES ====================
   _setupRepositories();
 
+  // ==================== WEBSOCKET ====================
+  _setupWebSocket();
+
   // ==================== USE CASES ====================
   _setupUseCases();
 }
@@ -54,9 +62,7 @@ Future<void> setupServiceLocator() async {
 // ==================== LOGGER ====================
 
 void _setupLogger() {
-  getIt.registerSingleton<Logger>(
-    Logger(),
-  );
+  getIt.registerSingleton<Logger>(Logger());
 }
 
 // ==================== SHARED PREFERENCES ====================
@@ -106,12 +112,11 @@ void _setupRemoteDataSource() {
 
 void _setupServices() {
   // Auth Service
-    final authService = AuthenticationService(
-      remoteDataSource: getIt<RemoteDataSource>(),
-      localDataSource: getIt<LocalDataSource>(),
-      preferences: getIt<SharedPreferences>(),
-      logger: getIt<Logger>(),
-  
+  final authService = AuthenticationService(
+    remoteDataSource: getIt<RemoteDataSource>(),
+    localDataSource: getIt<LocalDataSource>(),
+    preferences: getIt<SharedPreferences>(),
+    logger: getIt<Logger>(),
   );
 
   authService.initializeTokenFromCache();
@@ -144,6 +149,32 @@ void _setupServices() {
   );
 }
 
+// ==================== WEBSOCKET ====================
+
+void _setupWebSocket() {
+  // WebSocket DataSource
+  getIt.registerSingleton<WebSocketDataSource>(
+    WebSocketDataSource(logger: getIt<Logger>()),
+  );
+
+  // WebSocket Repository
+  getIt.registerSingleton<WebSocketRepository>(
+    WebSocketRepositoryImpl(
+      dataSource: getIt<WebSocketDataSource>(),
+      logger: getIt<Logger>(),
+    ),
+  );
+
+  // WebSocket Service
+  getIt.registerSingleton<WebSocketService>(
+    WebSocketService(
+      repository: getIt<WebSocketRepository>(),
+      logger: getIt<Logger>(),
+    ),
+  );
+
+}
+
 // ==================== REPOSITORIES ====================
 
 void _setupRepositories() {
@@ -157,10 +188,7 @@ void _setupRepositories() {
 
   // Avis Repository
   getIt.registerSingleton<AvisRepository>(
-    AvisRepositoryImpl(
-      service: getIt<AvisService>(),
-      logger: getIt<Logger>(),
-    ),
+    AvisRepositoryImpl(service: getIt<AvisService>(), logger: getIt<Logger>()),
   );
 
   // Geolocation Repository

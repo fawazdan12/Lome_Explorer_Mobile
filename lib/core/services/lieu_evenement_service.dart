@@ -231,7 +231,8 @@ class LieuEvenementService {
   Future<EvenementModel> createEvenement({
     required String nom,
     required String description,
-    required DateTime dateHeure,
+    required DateTime dateDebut,  
+    required DateTime dateFin,
     required String lieuId,
   }) async {
     try {
@@ -240,10 +241,13 @@ class LieuEvenementService {
       final evenement = await _remoteDataSource.createEvenement(
         nom: nom,
         description: description,
-        dateHeure: dateHeure,
+        dateDebut: dateDebut, 
+        dateFin: dateFin,
         lieuId: lieuId,
       );
 
+      _logger.i('🔔 Événement créé: ${evenement.id}');
+      _logger.i('🔔 Le serveur Django devrait envoyer une notification maintenant');
       // Vider le cache pour forcer le rafraîchissement
       await _localDataSource.clearEvenements();
 
@@ -260,7 +264,8 @@ class LieuEvenementService {
     required String id,
     required String nom,
     required String description,
-    required DateTime dateHeure,
+    required DateTime dateDebut,  
+    required DateTime dateFin,
     required String lieuId,
   }) async {
     try {
@@ -270,7 +275,8 @@ class LieuEvenementService {
         id: id,
         nom: nom,
         description: description,
-        dateHeure: dateHeure,
+        dateDebut: dateDebut,  
+        dateFin: dateFin,
         lieuId: lieuId,
       );
 

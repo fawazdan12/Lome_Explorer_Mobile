@@ -1,6 +1,7 @@
 import 'package:event_flow/core/providers/auth_provider.dart';
 import 'package:event_flow/core/services/lieu_evenement_service.dart';
 import 'package:event_flow/domains/entities/lieu_entity.dart';
+import 'package:event_flow/domains/injections/service_locator.dart' as getit;
 import 'package:event_flow/presentation/pages/auth/guard_lieu_evenement.dart';
 import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -288,7 +289,7 @@ class _LieuEditPageState extends State<LieuEditPage> {
     );
   }
 
-  // Modifier _handleSubmit avec vérification avant soumission :
+  // ✅ CORRECTION : Utiliser GetIt au lieu de context.read
   void _handleSubmit() async {
     // ✅ Double vérification avant soumission
     final canEdit = await context.canEditLieu(widget.lieu);
@@ -312,7 +313,8 @@ class _LieuEditPageState extends State<LieuEditPage> {
       final latitude = double.parse(_latitudeController.text.trim());
       final longitude = double.parse(_longitudeController.text.trim());
 
-      await context.read<LieuEvenementService>().updateLieu(
+      // ✅ CORRECTION : Utiliser GetIt
+      await getit.getIt<LieuEvenementService>().updateLieu(
         id: widget.lieu.id,
         nom: nom,
         description: description,

@@ -1,12 +1,12 @@
 import 'package:event_flow/config/app_routers.dart';
 import 'package:event_flow/config/theme/app_color.dart';
 import 'package:event_flow/core/providers/lieu_evenement_provider.dart';
-import 'package:event_flow/core/services/lieu_evenement_service.dart';
 import 'package:event_flow/domains/entities/evenement_entity.dart';
-import 'package:event_flow/domains/injections/service_locator.dart' as getit;
 import 'package:event_flow/presentation/pages/auth/guard_lieu_evenement.dart';
 import 'package:event_flow/presentation/pages/evenement/creation_evenement_page.dart';
 import 'package:event_flow/presentation/widgets/widgets.dart';
+import 'package:event_flow/domains/injections/service_locator.dart' as getit;
+import 'package:event_flow/core/services/lieu_evenement_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -36,11 +36,15 @@ class _EvenementListPageState extends State<EvenementListPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const EvenementCreatePage()),
               );
+              
+              if (result == true && mounted) {
+                context.read<EvenementsNotifier>().fetchEvenements();
+              }
             },
           ),
         ],
@@ -119,13 +123,17 @@ class _EvenementListPageState extends State<EvenementListPage> {
                     title: 'Aucun événement',
                     message: 'Il n\'y a aucun événement pour le moment',
                     icon: Icons.event_busy,
-                    onAction: () {
-                      Navigator.push(
+                    onAction: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const EvenementCreatePage(),
                         ),
                       );
+                      
+                      if (result == true && mounted) {
+                        context.read<EvenementsNotifier>().fetchEvenements();
+                      }
                     },
                     actionLabel: 'Créer un événement',
                   );
@@ -150,10 +158,11 @@ class _EvenementListPageState extends State<EvenementListPage> {
                             );
 
                             if (result == true && mounted) {
-                              context
-                                  .read<EvenementsNotifier>()
-                                  .fetchEvenements();
+                              context.read<EvenementsNotifier>().fetchEvenements();
                             }
+                          },
+                          onRefresh: () {
+                            context.read<EvenementsNotifier>().fetchEvenements();
                           },
                         ),
                       );
@@ -169,15 +178,17 @@ class _EvenementListPageState extends State<EvenementListPage> {
   }
 }
 
+// ==================== WIDGET SÉCURISÉ POUR LES CARTES D'ÉVÉNEMENT ====================
 
-// Widget sécurisé pour les cartes d'événement
 class _SecuredEvenementCard extends StatelessWidget {
   final EvenementEntity evenement;
   final VoidCallback onTap;
+  final VoidCallback onRefresh;
 
   const _SecuredEvenementCard({
     required this.evenement,
     required this.onTap,
+    required this.onRefresh,
   });
 
   @override
@@ -202,6 +213,7 @@ class _SecuredEvenementCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Nom avec badge propriétaire
                         Row(
                           children: [
                             Expanded(
@@ -213,7 +225,7 @@ class _SecuredEvenementCard extends StatelessWidget {
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
-                            // Badge propriétaire
+                            // ✅ Badge "Moi" si organisateur
                             if (isOwner)
                               Container(
                                 margin: const EdgeInsets.only(left: 8),
@@ -248,6 +260,8 @@ class _SecuredEvenementCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
+                        
+                        // Lieu
                         Row(
                           children: [
                             Icon(
@@ -270,16 +284,20 @@ class _SecuredEvenementCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // ✅ Menu contextuel seulement pour le propriétaire
+                  
+                  // ✅ Menu contextuel SEULEMENT pour l'organisateur
                   if (isOwner)
                     PopupMenuButton(
+                      icon: Icon(Icons.more_vert, color: AppColors.darkGrey),
+                      tooltip: 'Options',
                       itemBuilder: (context) => [
+                        // Option Modifier
                         PopupMenuItem(
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.edit, size: 18),
-                              SizedBox(width: 8),
-                              Text('Modifier'),
+                              Icon(Icons.edit, size: 18, color: AppColors.primaryBlue),
+                              const SizedBox(width: 8),
+                              const Text('Modifier'),
                             ],
                           ),
                           onTap: () async {
@@ -293,17 +311,19 @@ class _SecuredEvenementCard extends StatelessWidget {
                                   arguments: {'evenement': evenement},
                                 );
                                 if (result == true && context.mounted) {
-                                  context.read<EvenementsNotifier>().fetchEvenements();
+                                  onRefresh();
                                 }
                               }
                             }
                           },
                         ),
+                        
+                        // Option Supprimer
                         PopupMenuItem(
-                          child: const Row(
+                          child: Row(
                             children: [
                               Icon(Icons.delete, size: 18, color: AppColors.error),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Supprimer',
                                 style: TextStyle(color: AppColors.error),
@@ -315,7 +335,7 @@ class _SecuredEvenementCard extends StatelessWidget {
                             if (context.mounted) {
                               final canDelete = await context.canDeleteEvenement(evenement);
                               if (canDelete && context.mounted) {
-                                _showDeleteDialog(context, evenement);
+                                _showDeleteDialog(context, evenement, onRefresh);
                               }
                             }
                           },
@@ -404,22 +424,118 @@ class _SecuredEvenementCard extends StatelessWidget {
   }
 }
 
-void _showDeleteDialog(BuildContext context, EvenementEntity evenement) async {
+// ==================== DIALOGUE DE SUPPRESSION ====================
+
+void _showDeleteDialog(
+  BuildContext context,
+  EvenementEntity evenement,
+  VoidCallback onRefresh,
+) async {
+  final isUpcoming = evenement.dateDebut.isAfter(DateTime.now());
+  
   final confirmed = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Supprimer l\'événement'),
-      content: Text(
-        'Êtes-vous sûr de vouloir supprimer "${evenement.nom}" ?',
+    builder: (dialogContext) => AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.warning, color: Colors.orange, size: 28),
+          const SizedBox(width: 12),
+          const Expanded(child: Text('Supprimer l\'événement')),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Êtes-vous sûr de vouloir supprimer cet événement ?',
+            style: Theme.of(dialogContext).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.red.withOpacity(0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.event, size: 20, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        evenement.nom,
+                        style: Theme.of(dialogContext).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Date: ${DateFormat('dd/MM/yyyy HH:mm').format(evenement.dateDebut)}',
+                  style: Theme.of(dialogContext).textTheme.bodySmall,
+                ),
+                if (isUpcoming) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Événement à venir',
+                      style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 16, color: Colors.red),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Cette action est irréversible',
+                  style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (isUpcoming) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Les participants inscrits seront notifiés de l\'annulation.',
+              style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context, false),
+          onPressed: () => Navigator.pop(dialogContext, false),
           child: const Text('Annuler'),
         ),
         ElevatedButton(
-          onPressed: () => Navigator.pop(context, true),
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+          onPressed: () => Navigator.pop(dialogContext, true),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           child: const Text('Supprimer'),
         ),
       ],
@@ -428,14 +544,37 @@ void _showDeleteDialog(BuildContext context, EvenementEntity evenement) async {
 
   if (confirmed == true && context.mounted) {
     try {
+      // Afficher indicateur de chargement
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Supprimer l'événement
       await getit.getIt<LieuEvenementService>().deleteEvenement(evenement.id);
+
+      // Fermer le dialogue de chargement
+      if (context.mounted) Navigator.pop(context);
+
+      // Succès
       if (context.mounted) {
-        SnackBarHelper.showSuccess(context, 'Événement supprimé');
-        context.read<EvenementsNotifier>().fetchEvenements();
+        SnackBarHelper.showSuccess(
+          context,
+          '${evenement.nom} supprimé avec succès',
+        );
+        onRefresh();
       }
     } catch (e) {
+      // Fermer le dialogue de chargement
+      if (context.mounted) Navigator.pop(context);
+
+      // Afficher l'erreur
       if (context.mounted) {
-        SnackBarHelper.showError(context, 'Erreur: $e');
+        SnackBarHelper.showError(
+          context,
+          'Erreur lors de la suppression: $e',
+        );
       }
     }
   }

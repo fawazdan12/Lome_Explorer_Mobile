@@ -1,6 +1,8 @@
 import 'package:event_flow/config/theme/app_color.dart';
+import 'package:event_flow/config/websocket_config.dart';
 import 'package:event_flow/core/providers/auth_provider.dart';
 import 'package:event_flow/core/providers/lieu_evenement_provider.dart';
+import 'package:event_flow/core/providers/notification_provider.dart';
 import 'package:event_flow/domains/injections/service_locator.dart' as getit;
 import 'package:event_flow/core/services/lieu_evenement_service.dart';
 import 'package:event_flow/presentation/pages/auth/auth_guard.dart';
@@ -8,6 +10,9 @@ import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:logger/logger.dart';
+// logger global
+final Logger _logger = Logger();
 
 class EvenementCreatePage extends StatefulWidget {
   const EvenementCreatePage({super.key});
@@ -588,6 +593,30 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
     }
   }
 
+  Future<void> _ensureWebSocketConnected() async {
+  final notifProvider = context.read<NotificationProvider>();
+  
+  _logger.i('🔍 Vérification connexion WebSocket');
+  _logger.i('   État: ${notifProvider.connectionState.description}');
+  _logger.i('   Connecté: ${notifProvider.isConnected}');
+  
+  if (!notifProvider.isConnected) {
+    _logger.w('⚠️ WebSocket non connecté, connexion...');
+    await notifProvider.connectToGeneral();
+    
+    // Attendre un peu pour s'assurer que la connexion est établie
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (notifProvider.isConnected) {
+      _logger.i('✅ WebSocket maintenant connecté');
+    } else {
+      _logger.e('❌ Échec de connexion WebSocket');
+    }
+  } else {
+    _logger.i('✅ WebSocket déjà connecté');
+  }
+}
+
   Future<void> _handleSubmit() async {
     // Vérifier l'authentification
     final authNotifier = context.read<AuthNotifier>();
@@ -635,16 +664,20 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
     setState(() => _isLoading = true);
 
     try {
+      await _ensureWebSocketConnected();
+      
       final nom = _nomController.text.trim();
       final description = _descriptionController.text.trim();
-      final dateHeure = _dateDebut!;
+      final dateDebut = _dateDebut!;  
+      final dateFin = _dateFin!;
       final lieuId = _selectedLieuId!;
 
       // Utiliser GetIt pour le service
       await getit.getIt<LieuEvenementService>().createEvenement(
         nom: nom,
         description: description,
-        dateHeure: dateHeure,
+        dateDebut: dateDebut,  
+        dateFin: dateFin,
         lieuId: lieuId,
       );
 

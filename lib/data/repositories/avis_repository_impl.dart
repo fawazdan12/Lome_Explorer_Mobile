@@ -6,16 +6,13 @@ import 'package:event_flow/domains/entities/erreur_entity.dart';
 import 'package:event_flow/domains/repositories/avis_repository.dart';
 import 'package:logger/logger.dart';
 
-
 class AvisRepositoryImpl implements AvisRepository {
   final AvisService _service;
   final Logger _logger;
 
-  AvisRepositoryImpl({
-    required AvisService service,
-    required Logger logger,
-  })  : _service = service,
-        _logger = logger;
+  AvisRepositoryImpl({required AvisService service, required Logger logger})
+    : _service = service,
+      _logger = logger;
 
   @override
   Future<Either<Failure, List<AvisLieuEntity>>> getAvisLieu(
@@ -36,6 +33,10 @@ class AvisRepositoryImpl implements AvisRepository {
     required String texte,
   }) async {
     try {
+      _logger.i('🔍 [REPO] createAvisLieu appelé');
+      _logger.i('   lieuId: $lieuId (length: ${lieuId.length})');
+      _logger.i('   note: $note');
+      _logger.i('   texte length: ${texte.length}');
       final avis = await _service.createAvisLieu(
         lieuId: lieuId,
         note: note,

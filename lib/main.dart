@@ -6,11 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 
 void main() async {
   // Assurez-vous que les widgets Flutter sont initialisés
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configuration timeago pour le français
+  timeago.setLocaleMessages('fr', timeago.FrMessages());
+
 
   // Configuration de l'orientation
   await SystemChrome.setPreferredOrientations([

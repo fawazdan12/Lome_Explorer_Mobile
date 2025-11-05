@@ -6,10 +6,12 @@ import 'package:event_flow/domains/repositories/avis_repository.dart';
 import 'package:event_flow/domains/repositories/auth_repository.dart';
 import 'package:event_flow/domains/repositories/geo_repository.dart';
 import 'package:event_flow/domains/repositories/lieu_evenement_repository.dart';
+import 'package:event_flow/core/providers/notification_provider.dart';
+import 'package:event_flow/core/services/websocket_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart'; // Import explicite si nécessaire
+import 'package:provider/single_child_widget.dart';
 
 final getIt = GetIt.instance;
 
@@ -21,6 +23,14 @@ List<SingleChildWidget> getAppProviders() {
     ChangeNotifierProvider<AuthNotifier>(
       create: (_) => AuthNotifier(
         repo: getIt<AuthenticationRepository>(),
+        logger: getIt<Logger>(),
+      ),
+    ),
+
+    // ==================== WEBSOCKET NOTIFICATION PROVIDER ====================
+    ChangeNotifierProvider<NotificationProvider>(
+      create: (_) => NotificationProvider(
+        service: getIt<WebSocketService>(),
         logger: getIt<Logger>(),
       ),
     ),
@@ -77,25 +87,27 @@ List<SingleChildWidget> getAppProviders() {
     ),
 
     // ==================== LIEU EVENEMENT PROVIDERS (Simplification des Proxy) ====================
-    
+
     // Lieu Detail : SUPPRIMÉ de la liste globale (voir createLieuDetailProvider ci-dessous)
     // Evenement Detail : SUPPRIMÉ de la liste globale (voir createEvenementDetailProvider ci-dessous)
-    
+
     // Simplification : LieuxNotifier utilise context.read() pour obtenir LieuSearchNotifier
     ChangeNotifierProvider<LieuxNotifier>(
       create: (context) => LieuxNotifier(
         repo: getIt<LieuEvenementRepository>(),
         logger: getIt<Logger>(),
-        searchNotifier: context.read<LieuSearchNotifier>(), // Utilisation simplifiée
+        searchNotifier: context
+            .read<LieuSearchNotifier>(), // Utilisation simplifiée
       ),
     ),
-    
+
     // Simplification : EvenementsNotifier utilise context.read() pour obtenir EvenementSearchNotifier
     ChangeNotifierProvider<EvenementsNotifier>(
       create: (context) => EvenementsNotifier(
         repo: getIt<LieuEvenementRepository>(),
         logger: getIt<Logger>(),
-        searchNotifier: context.read<EvenementSearchNotifier>(), // Utilisation simplifiée
+        searchNotifier: context
+            .read<EvenementSearchNotifier>(), // Utilisation simplifiée
       ),
     ),
 
@@ -104,19 +116,21 @@ List<SingleChildWidget> getAppProviders() {
       create: (context) => NearbyPlacesNotifier(
         repo: getIt<LieuEvenementRepository>(),
         logger: getIt<Logger>(),
-        proximityNotifier: context.read<ProximitySearchNotifier>(), // Utilisation simplifiée
+        proximityNotifier: context
+            .read<ProximitySearchNotifier>(), // Utilisation simplifiée
       ),
     ),
-    
+
     // Simplification : NearbyEventsNotifier utilise context.read() pour obtenir ProximitySearchNotifier
     ChangeNotifierProvider<NearbyEventsNotifier>(
       create: (context) => NearbyEventsNotifier(
         repo: getIt<LieuEvenementRepository>(),
         logger: getIt<Logger>(),
-        proximityNotifier: context.read<ProximitySearchNotifier>(), // Utilisation simplifiée
+        proximityNotifier: context
+            .read<ProximitySearchNotifier>(), // Utilisation simplifiée
       ),
     ),
-    
+
     ChangeNotifierProvider<CacheNotifier>(
       create: (_) => CacheNotifier(
         repo: getIt<LieuEvenementRepository>(),
@@ -192,7 +206,9 @@ ChangeNotifierProvider<AvisEvenementNotifier> createAvisEvenementProvider(
 }
 
 /// NOUVEAU : Factory pour le détail d'un lieu (remplace la déclaration globale)
-ChangeNotifierProvider<LieuDetailNotifier> createLieuDetailProvider(String lieuId) {
+ChangeNotifierProvider<LieuDetailNotifier> createLieuDetailProvider(
+  String lieuId,
+) {
   return ChangeNotifierProvider<LieuDetailNotifier>(
     create: (_) => LieuDetailNotifier(
       repo: getIt<LieuEvenementRepository>(),
@@ -203,12 +219,14 @@ ChangeNotifierProvider<LieuDetailNotifier> createLieuDetailProvider(String lieuI
 }
 
 /// NOUVEAU : Factory pour le détail d'un événement (remplace la déclaration globale)
-ChangeNotifierProvider<EvenementDetailNotifier> createEvenementDetailProvider(String evenementId) {
+ChangeNotifierProvider<EvenementDetailNotifier> createEvenementDetailProvider(
+  String evenementId,
+) {
   return ChangeNotifierProvider<EvenementDetailNotifier>(
     create: (_) => EvenementDetailNotifier(
       repo: getIt<LieuEvenementRepository>(),
       logger: getIt<Logger>(),
-      evenementId: evenementId, 
+      evenementId: evenementId,
     ),
   );
 }

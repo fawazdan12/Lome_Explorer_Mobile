@@ -370,14 +370,16 @@ class _EvenementEditPageState extends State<EvenementEditPage> {
   try {
     final nom = _nomController.text.trim();
     final description = _descriptionController.text.trim();
-    final dateHeure = _dateDebut;
+    final dateDebut = _dateDebut;  
+    final dateFin = _dateFin;
     final lieuId = _selectedLieuId;
 
     await context.read<LieuEvenementService>().updateEvenement(
       id: widget.evenement.id, 
       nom: nom, 
       description: description, 
-      dateHeure: dateHeure, 
+      dateDebut: dateDebut,  
+      dateFin: dateFin,
       lieuId: lieuId
     );
 

@@ -52,9 +52,6 @@ dependencies:
   permission_handler: ^11.2.0
   google_maps_flutter: ^2.5.0
   
-  # WebSocket
-  web_socket_channel: ^2.4.0
-  
   # UI et widgets
   flutter_svg: ^2.0.9
   cached_network_image: ^3.3.0
@@ -83,6 +80,10 @@ dependencies:
   flutter_localization: ^0.3.3
   flutter_localizations:
     sdk: flutter
+  
+  # WebSocket
+  web_socket_channel: ^3.0.3
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -137,3 +138,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true # Laisser sur true pour générer les deux types d'icônes
+  ios: true
+  image_path: "assets/icon/lomeExplorer.png"
+  adaptive_icon_background: "#FFFFFF" # Couleur d'arrière-plan pour Android

@@ -1,5 +1,7 @@
 import 'package:event_flow/config/theme/app_color.dart';
+import 'package:event_flow/core/providers/auth_provider.dart';
 import 'package:event_flow/core/providers/avis_provider.dart';
+import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_edit_page.dart';
 import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,11 +32,116 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _checkExistingAvis();
+  }
+
+  Future<void> _checkExistingAvis() async {
+    // Vérifier si l'utilisateur a déjà donné un avis
+    final avisNotifier = context.read<AvisLieuNotifier>();
+
+    // Récupérer les avis du lieu
+    await avisNotifier.fetchAvis();
+
+    // Chercher un avis de l'utilisateur actuel
+    final currentUserId = context.read<AuthNotifier>().currentUser?.id;
+    // Rechercher l'avis correspondant à l'utilisateur courant de manière sûre
+    final matching = avisNotifier.avis.where(
+      (avis) => avis.utilisateurId == currentUserId,
+    );
+    final existingAvis = matching.isNotEmpty ? matching.first : null;
+
+    if (existingAvis != null && mounted) {
+      // L'utilisateur a déjà un avis
+      _showExistingAvisDialog(existingAvis);
+    }
+  }
+
+  void _showExistingAvisDialog(dynamic existingAvis) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: AppColors.info),
+            const SizedBox(width: 12),
+            const Text('Avis existant'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Vous avez déjà donné un avis sur ce lieu.',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primaryGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RatingWidget(
+                    rating: existingAvis.note,
+                    onRatingChanged: (_) {},
+                    readOnly: true,
+                    size: 18,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    existingAvis.texte,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Vous ne pouvez donner qu\'un seul avis par lieu. '
+              'Voulez-vous modifier votre avis existant ?',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Fermer le dialogue
+              Navigator.pop(context); // Retourner à la page précédente
+            },
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // Fermer le dialogue
+              // Naviguer vers modification
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AvisLieuEditPage(avis: existingAvis),
+                ),
+              );
+            },
+            child: const Text('Modifier'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Donner mon avis',
-      ),
+      appBar: CustomAppBar(title: 'Donner mon avis'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -73,16 +180,14 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
                         children: [
                           Text(
                             'Vous donnez un avis sur',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.mediumGrey,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.mediumGrey),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             widget.lieuNom,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -95,16 +200,16 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
               // Note
               Text(
                 'Votre note',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Cliquez sur les étoiles pour noter',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.mediumGrey,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
               ),
               const SizedBox(height: 16),
               Center(
@@ -143,16 +248,16 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
               // Texte de l'avis
               Text(
                 'Votre commentaire',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Partagez votre expérience avec la communauté',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.mediumGrey,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
               ),
               const SizedBox(height: 16),
               CustomTextField(
@@ -183,11 +288,7 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.tips_and_updates,
-                      color: Colors.blue,
-                      size: 20,
-                    ),
+                    Icon(Icons.tips_and_updates, color: Colors.blue, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -276,10 +377,7 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
 
   void _handleSubmit(CreateAvisLieuNotifier createNotifier) async {
     if (_note == 0) {
-      SnackBarHelper.showError(
-        context,
-        'Veuillez donner une note',
-      );
+      SnackBarHelper.showError(context, 'Veuillez donner une note');
       return;
     }
 
@@ -295,13 +393,46 @@ class _AvisLieuCreatePageState extends State<AvisLieuCreatePage> {
       texte: _texteController.text.trim(),
     );
 
-    if (avis != null && mounted) {
-      SnackBarHelper.showSuccess(
-        context,
-        'Avis publié avec succès',
-      );
-      Navigator.pop(context, true);
+    if (mounted) {
+      if (avis != null) {
+        SnackBarHelper.showSuccess(context, 'Avis publié avec succès');
+        Navigator.pop(context, true);
+      } else if (createNotifier.error != null) {
+        // ✅ Gérer le message d'erreur spécifique
+        final error = createNotifier.error!;
+
+        if (error.contains('déjà donné un avis') ||
+            error.contains('already exists')) {
+          // Avis en double détecté
+          _showDuplicateAvisError();
+        } else {
+          // Autre erreur
+          SnackBarHelper.showError(context, error);
+        }
+      }
     }
+  }
+
+  void _showDuplicateAvisError() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Avis déjà existant'),
+        content: const Text(
+          'Vous avez déjà donné un avis sur ce lieu. '
+          'Veuillez modifier votre avis existant depuis la liste des avis.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Fermer dialogue
+              Navigator.pop(context); // Retourner à la liste
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Color _getRatingColor() {

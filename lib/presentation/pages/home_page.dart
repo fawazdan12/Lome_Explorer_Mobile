@@ -7,6 +7,11 @@ import 'package:event_flow/presentation/pages/lieu/lieu_list_page.dart';
 import 'package:event_flow/presentation/pages/map/map_page.dart';
 import 'package:event_flow/presentation/pages/profile_page.dart';
 import 'package:event_flow/presentation/widgets/widgets.dart';
+import 'package:event_flow/data/datasource/local/cache_hive_datasource.dart';
+import 'package:event_flow/domains/injections/service_locator.dart' as getit;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:event_flow/core/providers/notification_provider.dart';
+import 'package:event_flow/presentation/widgets/notification_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +35,18 @@ class _HomePageState extends State<HomePage> {
       // Charger les données initiales
       context.read<LieuxNotifier>().fetchLieux();
       context.read<EvenementsNotifier>().fetchEvenements();
+
+      _initializeWebSocket();
     });
+  }
+
+  Future<void> _initializeWebSocket() async {
+    final notifProvider = context.read<NotificationProvider>();
+
+    // Se connecter aux notifications générales
+    if (!notifProvider.isConnected) {
+      await notifProvider.connectToGeneral();
+    }
   }
 
   @override
@@ -94,6 +110,30 @@ class HomeContentPage extends StatelessWidget {
         title: const Text('Lomé Explorer'),
         backgroundColor: AppColors.primaryOrange,
         actions: [
+          const NotificationBadge(),
+          IconButton(
+            icon: const Icon(Icons.bug_report, color: Colors.red),
+            onPressed: () {
+              Navigator.pushNamed(context, '/debug');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_forever, color: Colors.red),
+            tooltip: 'Vider cache complet',
+            onPressed: () async {
+              final localDataSource = getit.getIt<LocalDataSource>();
+              await localDataSource.clearAllCache();
+
+              // Vider aussi SharedPreferences
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('cache_cleared_v2');
+
+              SnackBarHelper.showSuccess(
+                context,
+                'Cache vidé ! Redémarrez l\'app',
+              );
+            },
+          ),
           // Bouton carte en haut
           IconButton(
             icon: const Icon(Icons.map),

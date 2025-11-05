@@ -5,6 +5,8 @@ import 'package:event_flow/domains/repositories/avis_repository.dart';
 import 'package:event_flow/domains/repositories/lieu_evenement_repository.dart';
 import 'package:event_flow/presentation/pages/auth/login_page.dart';
 import 'package:event_flow/presentation/pages/auth/register_page.dart';
+import 'package:event_flow/presentation/pages/debug/debug_page.dart';
+import 'package:event_flow/presentation/widgets/notification_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -63,6 +65,12 @@ class AppRoutes {
   static const String avisEvenementCreate = '/avis-evenement/create';
   static const String avisEvenementEdit = '/avis-evenement/edit';
 
+  // Notifications
+  static const String notificationTest = '/notification-test';
+
+  // debug
+  static const String debug = '/debug';
+
   /// Génère les routes de l'application
   static Map<String, WidgetBuilder> getRoutes() {
     return {
@@ -75,6 +83,8 @@ class AppRoutes {
       lieuCreate: (context) => const LieuCreatePage(),
       evenementList: (context) => const EvenementListPage(),
       evenementCreate: (context) => const EvenementCreatePage(),
+      debug: (context) => const DebugOwnershipPage(),
+      notificationTest: (context) => const NotificationTestPage(),
     };
   }
 

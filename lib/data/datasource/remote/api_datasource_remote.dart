@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:event_flow/config/api_execption.dart';
 import 'package:event_flow/config/app_config.dart';
@@ -52,7 +54,11 @@ class RemoteDataSource {
           return handler.next(response);
         },
         onError: (error, handler) {
-          _logger.e('Erreur: ${error.message}');
+          _logger.e('⛔ Erreur HTTP: ${error.message}');
+          _logger.e('⛔ Status Code: ${error.response?.statusCode}');
+          _logger.e('⛔ Response Data: ${error.response?.data}');
+          _logger.e('⛔ Request Data: ${error.requestOptions.data}');
+          _logger.e('⛔ Request Headers: ${error.requestOptions.headers}');
           if (error.response?.statusCode == 401) {
             _logger.e(
               '🔐 Token utilisé: ${_token != null ? "Oui (${_token!.substring(0, 20)}...)" : "Non"}',
@@ -388,7 +394,8 @@ class RemoteDataSource {
     required String nom,
     required String description,
     required String lieuId,
-    required DateTime dateHeure,
+    required DateTime dateDebut,
+    required DateTime dateFin,
   }) async {
     try {
       final response = await _dio.post(
@@ -397,7 +404,8 @@ class RemoteDataSource {
           'nom': nom,
           'description': description,
           'lieu': lieuId,
-          'date_heure': dateHeure.toIso8601String(),
+          'date_debut': dateDebut.toIso8601String(), // ✅ Bon format
+          'date_fin': dateFin.toIso8601String(),
         },
       );
 
@@ -419,7 +427,8 @@ class RemoteDataSource {
     required String nom,
     required String description,
     required String lieuId,
-    required DateTime dateHeure,
+    required DateTime dateDebut, // ✅ Deux champs séparés
+    required DateTime dateFin,
   }) async {
     try {
       final response = await _dio.put(
@@ -428,7 +437,8 @@ class RemoteDataSource {
           'nom': nom,
           'description': description,
           'lieu': lieuId,
-          'date_heure': dateHeure.toIso8601String(),
+          'date_debut': dateDebut.toIso8601String(), // ✅ Bon format
+          'date_fin': dateFin.toIso8601String(),
         },
       );
 
@@ -587,6 +597,10 @@ class RemoteDataSource {
     required String texte,
   }) async {
     try {
+      _logger.i('📝 Création avis lieu:');
+      _logger.i('   lieuId: $lieuId');
+      _logger.i('   note: $note');
+      _logger.i('   texte: ${texte.substring(0, min(50, texte.length))}...');
       final response = await _dio.post(
         ApiConstants.avisLieux,
         data: {'lieu': lieuId, 'note': note, 'texte': texte},
@@ -809,22 +823,53 @@ class RemoteDataSource {
     final statusCode = e.response?.statusCode;
     final data = e.response?.data;
 
+    // ✅ LOGGER DÉTAILLÉ
+    _logger.e('🔍 _handleBadResponse appelée');
+    _logger.e('   Status: $statusCode');
+    _logger.e('   Data type: ${data.runtimeType}');
+    _logger.e('   Data: $data');
+
     String message = 'Erreur serveur';
+    Map<String, dynamic>? errors;
 
     if (data is Map<String, dynamic>) {
+      _logger.e('   Data est un Map, clés: ${data.keys.toList()}');
+
+      // Extraire le message d'erreur
       if (data['error'] != null) {
-        message = data['error'];
+        message = data['error'].toString();
       } else if (data['detail'] != null) {
-        message = data['detail'];
+        message = data['detail'].toString();
+      } else if (data['message'] != null) {
+        message = data['message'].toString();
+      } else {
+        // Chercher dans les erreurs de validation
+        final errorKeys = data.keys
+            .where((k) => k != 'non_field_errors')
+            .toList();
+        if (errorKeys.isNotEmpty) {
+          final firstKey = errorKeys.first;
+          final errorValue = data[firstKey];
+
+          if (errorValue is List && errorValue.isNotEmpty) {
+            message = '$firstKey: ${errorValue.first}';
+          } else {
+            message = '$firstKey: $errorValue';
+          }
+        }
       }
+
+      errors = data;
+    } else if (data is String) {
+      _logger.e('   Data est un String: $data');
+      message = data;
     }
+
+    _logger.e('   Message final: $message');
 
     switch (statusCode) {
       case 400:
-        return ValidationException(
-          message: message,
-          errors: data is Map ? Map<String, dynamic>.from(data) : null,
-        );
+        return ValidationException(message: message, errors: errors);
       case 401:
       case 403:
         return AuthenticationException(message);

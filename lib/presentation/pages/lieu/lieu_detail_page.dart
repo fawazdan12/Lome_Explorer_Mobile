@@ -53,7 +53,6 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -433,34 +432,102 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                       ),
                     ),
 
-                  // Avis
+                  // Avis - Section complète avec bouton
                   const Divider(height: 32),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Avis des visiteurs',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            AppRoutes.navigateTo(
-                              context,
-                              AppRoutes.avisLieuList,
-                              arguments: {
-                                'lieuId': widget.lieuId,
-                                'lieuNom': lieu.nom,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Avis des visiteurs',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                AppRoutes.navigateTo(
+                                  context,
+                                  AppRoutes.avisLieuList,
+                                  arguments: {
+                                    'lieuId': widget.lieuId,
+                                    'lieuNom': lieu.nom,
+                                  },
+                                );
                               },
-                            );
-                          },
-                          child: const Text('Voir tout'),
+                              child: const Text('Voir tout'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // ✅ AJOUT : Statistiques des avis
+                        if (lieu.moyenneAvis != null)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.ratingColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: AppColors.ratingColor,
+                                  size: 32,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  lieu.moyenneAvis!.toStringAsFixed(1),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.ratingColor,
+                                      ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '/ 5',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(color: AppColors.mediumGrey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+
+                        // ✅ AJOUT : Bouton pour voir/donner un avis
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              AppRoutes.navigateTo(
+                                context,
+                                AppRoutes.avisLieuList,
+                                arguments: {
+                                  'lieuId': widget.lieuId,
+                                  'lieuNom': lieu.nom,
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.reviews),
+                            label: const Text('Voir tous les avis'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: AppColors.primaryGreen,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -478,7 +545,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
               AppRoutes.navigateTo(
                 context,
                 AppRoutes.avisLieuCreate,
-                arguments: {'lieuId': widget.lieuId, 'lieuNom': lieu.nom},
+                arguments: {'lieuId': lieu.id, 'lieuNom': lieu.nom},
               );
             },
             icon: const Icon(Icons.rate_review),
@@ -634,7 +701,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
     );
   }
 
-    // Méthode pour le menu du propriétaire
+  // Méthode pour le menu du propriétaire
   void _showOwnerMenu(BuildContext context, LieuEntity lieu) {
     showModalBottomSheet(
       context: context,
@@ -726,141 +793,143 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
   }
 
   /// Afficher le dialogue de confirmation de suppression
-void _showDeleteDialog(BuildContext context, LieuEntity lieu) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.warning, color: Colors.orange, size: 28),
-          const SizedBox(width: 12),
-          const Text('Supprimer le lieu'),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Êtes-vous sûr de vouloir supprimer ce lieu ?',
-            style: Theme.of(dialogContext).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+  void _showDeleteDialog(BuildContext context, LieuEntity lieu) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.orange, size: 28),
+            const SizedBox(width: 12),
+            const Text('Supprimer le lieu'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Êtes-vous sûr de vouloir supprimer ce lieu ?',
+              style: Theme.of(dialogContext).textTheme.bodyLarge,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.place, size: 20, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        lieu.nom,
-                        style: Theme.of(dialogContext).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.place, size: 20, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          lieu.nom,
+                          style: Theme.of(dialogContext).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.info_outline, size: 16, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Cette action est irréversible',
-                        style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Cette action est irréversible',
+                          style: Theme.of(dialogContext).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: 12),
+            Text(
+              'Tous les événements associés à ce lieu seront également affectés.',
+              style: Theme.of(
+                dialogContext,
+              ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Annuler'),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Tous les événements associés à ce lieu seront également affectés.',
-            style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-            ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Supprimer'),
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text('Annuler'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(dialogContext, true),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          child: const Text('Supprimer'),
-        ),
-      ],
-    ),
-  );
+    );
 
-  if (confirmed == true && context.mounted) {
-    try {
-      // Afficher un indicateur de chargement
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
-      // Supprimer le lieu
-      await getit.getIt<LieuEvenementService>().deleteLieu(lieu.id);
-
-      // Fermer le dialogue de chargement
-      if (context.mounted) Navigator.pop(context);
-
-      // Succès
-      if (context.mounted) {
-        SnackBarHelper.showSuccess(
-          context,
-          '${lieu.nom} a été supprimé avec succès',
+    if (confirmed == true && context.mounted) {
+      try {
+        // Afficher un indicateur de chargement
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
         );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      // Fermer le dialogue de chargement
-      if (context.mounted) Navigator.pop(context);
 
-      // Gérer l'erreur
-      if (context.mounted) {
-        String errorMessage = 'Erreur lors de la suppression: ';
-        
-        if (e.toString().contains('401')) {
-          errorMessage = 'Session expirée. Veuillez vous reconnecter.';
-          await context.read<AuthNotifier>().logout();
-          if (context.mounted) {
-            await Navigator.pushNamed(context, '/login');
-            Navigator.pop(context);
-          }
-        } else if (e.toString().contains('403')) {
-          errorMessage = 'Vous n\'avez pas la permission de supprimer ce lieu.';
-        } else {
-          errorMessage += e.toString();
+        // Supprimer le lieu
+        await getit.getIt<LieuEvenementService>().deleteLieu(lieu.id);
+
+        // Fermer le dialogue de chargement
+        if (context.mounted) Navigator.pop(context);
+
+        // Succès
+        if (context.mounted) {
+          SnackBarHelper.showSuccess(
+            context,
+            '${lieu.nom} a été supprimé avec succès',
+          );
+          Navigator.pop(context, true);
         }
-        
-        SnackBarHelper.showError(context, errorMessage);
+      } catch (e) {
+        // Fermer le dialogue de chargement
+        if (context.mounted) Navigator.pop(context);
+
+        // Gérer l'erreur
+        if (context.mounted) {
+          String errorMessage = 'Erreur lors de la suppression: ';
+
+          if (e.toString().contains('401')) {
+            errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+            await context.read<AuthNotifier>().logout();
+            if (context.mounted) {
+              await Navigator.pushNamed(context, '/login');
+              Navigator.pop(context);
+            }
+          } else if (e.toString().contains('403')) {
+            errorMessage =
+                'Vous n\'avez pas la permission de supprimer ce lieu.';
+          } else {
+            errorMessage += e.toString();
+          }
+
+          SnackBarHelper.showError(context, errorMessage);
+        }
       }
     }
   }
-}
 
   String _formatDate(DateTime date) {
     final formatter = DateFormat('dd MMMM yyyy', 'fr_FR');

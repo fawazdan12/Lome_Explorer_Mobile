@@ -36,17 +36,50 @@ class LieuModel extends Equatable {
   });
 
   factory LieuModel.fromJson(Map<String, dynamic> json) {
+    _logger.d('🔍 === DIAGNOSTIC COMPLET LIEU ===');
+    _logger.d('📦 JSON BRUT COMPLET:');
+    _logger.d(json.toString());
+    _logger.d('');
     
-    _logger.d('LieuModel.fromJson - Parsing lieu: ${json['nom']}');
-    _logger.d('  → description brute: "${json['description']}" (type: ${json['description'].runtimeType})');
+    _logger.d('🔑 Clés disponibles: ${json.keys.toList()}');
+    _logger.d('');
     
+    // Diagnostic proprietaire
+    _logger.d('👤 PROPRIÉTAIRE:');
+    _logger.d('  ├─ json["proprietaire"] = ${json['proprietaire']}');
+    _logger.d('  ├─ Type: ${json['proprietaire'].runtimeType}');
+    _logger.d('  ├─ json["proprietaire_id"] = ${json['proprietaire_id']}');
+    _logger.d('  ├─ Type: ${json['proprietaire_id'].runtimeType}');
+    _logger.d('  └─ json["proprietaire_nom"] = ${json['proprietaire_nom']}');
+    _logger.d('');
+
+    String proprietaireId = '';
+    
+    // ✅ PRIORITÉ 1 : Vérifier proprietaire_id en premier
+    if (json['proprietaire_id'] != null && json['proprietaire_id'].toString().isNotEmpty) {
+      proprietaireId = json['proprietaire_id'].toString();
+      _logger.d('✅ proprietaire_id trouvé: "$proprietaireId"');
+    }
+    // PRIORITÉ 2 : Essayer proprietaire
+    else if (json['proprietaire'] != null) {
+      if (json['proprietaire'] is String) {
+        proprietaireId = json['proprietaire'] as String;
+        _logger.d('✅ proprietaire (string) trouvé: "$proprietaireId"');
+      } else if (json['proprietaire'] is Map) {
+        final propMap = json['proprietaire'] as Map<String, dynamic>;
+        proprietaireId = propMap['id']?.toString() ?? '';
+        _logger.d('✅ proprietaire.id (map) trouvé: "$proprietaireId"');
+      }
+    }
+    
+    _logger.d('🎯 RÉSULTAT FINAL: proprietaireId = "$proprietaireId"');
+    _logger.d('================================\n');
+
     // Extraction sécurisée de la description
     String description = '';
     if (json['description'] != null) {
       description = json['description'].toString().trim();
     }
-    
-    _logger.d('  Description finale: "$description" (${description.length} caractères)');
 
     return LieuModel(
       id: json['id'] as String,
@@ -59,7 +92,7 @@ class LieuModel extends Equatable {
           ? DateTime.parse(json['date_creation'] as String)
           : DateTime.now(),
       proprietaireNom: json['proprietaire_nom'] as String? ?? 'Inconnu',
-      proprietaireId: json['proprietaire'] as String? ?? '',
+      proprietaireId: proprietaireId,
       nombreEvenements: json['nombre_evenements'] as int? ?? 0,
       moyenneAvis: json['moyenne_avis'] != null
           ? double.parse(json['moyenne_avis'].toString())
@@ -77,17 +110,17 @@ class LieuModel extends Equatable {
       'longitude': longitude,
       'date_creation': dateCreation.toIso8601String(),
       'proprietaire_nom': proprietaireNom,
-      'proprietaire': proprietaireId,
+      'proprietaire_id': proprietaireId,  // ✅ Utiliser proprietaire_id
       'nombre_evenements': nombreEvenements,
       'moyenne_avis': moyenneAvis,
     };
   }
 
   LieuEntity toEntity() {
-    
     _logger.d('LieuModel.toEntity - "$nom"');
+    _logger.d(' proprietaireId: "$proprietaireId"');
     _logger.d(' description: "${description.length > 0 ? description.substring(0, description.length > 50 ? 50 : description.length) : '(vide)'}"...');
-    
+
     return LieuEntity(
       id: id,
       nom: nom,
@@ -120,7 +153,7 @@ class LieuModel extends Equatable {
 
   @override
   String toString() {
-    return 'LieuModel(id: $id, nom: $nom, description: "${description.substring(0, description.length > 50 ? 50 : description.length)}...", categorie: $categorie)';
+    return 'LieuModel(id: $id, nom: $nom, proprietaireId: $proprietaireId, categorie: $categorie)';
   }
 }
 
@@ -160,17 +193,32 @@ class EvenementModel extends Equatable {
   });
 
   factory EvenementModel.fromJson(Map<String, dynamic> json) {
-    // 🐛 DEBUG: Afficher le JSON reçu
     _logger.d('📦 EvenementModel.fromJson - Parsing événement: ${json['nom']}');
-    _logger.d('  → description brute: "${json['description']}" (type: ${json['description'].runtimeType})');
     
+    // Debug organisateur
+    _logger.d('👤 ORGANISATEUR:');
+    _logger.d('  ├─ json["organisateur"] = ${json['organisateur']}');
+    _logger.d('  ├─ json["organisateur_id"] = ${json['organisateur_id']}');
+    _logger.d('  └─ json["organisateur_nom"] = ${json['organisateur_nom']}');
+
+    // Extraction organisateur_id
+    String organisateurId = '';
+    if (json['organisateur_id'] != null && json['organisateur_id'].toString().isNotEmpty) {
+      organisateurId = json['organisateur_id'].toString();
+      _logger.d('✅ organisateur_id trouvé: "$organisateurId"');
+    } else if (json['organisateur'] != null) {
+      if (json['organisateur'] is String) {
+        organisateurId = json['organisateur'] as String;
+      } else if (json['organisateur'] is Map) {
+        organisateurId = (json['organisateur'] as Map)['id']?.toString() ?? '';
+      }
+    }
+
     // Extraction sécurisée de la description
     String description = '';
     if (json['description'] != null) {
       description = json['description'].toString().trim();
     }
-    
-    _logger.d('  ✅ Description finale: "$description" (${description.length} caractères)');
 
     return EvenementModel(
       id: json['id'] as String,
@@ -186,7 +234,7 @@ class EvenementModel extends Equatable {
       lieuLongitude: json['lieu_longitude'] != null
           ? double.parse(json['lieu_longitude'].toString())
           : null,
-      organisateurId: json['organisateur'] as String? ?? '',
+      organisateurId: organisateurId,
       organisateurNom: json['organisateur_nom'] as String,
       moyenneAvis: json['moyenne_avis'] != null
           ? double.parse(json['moyenne_avis'].toString())
@@ -209,7 +257,7 @@ class EvenementModel extends Equatable {
       'lieu_nom': lieuNom,
       'lieu_latitude': lieuLatitude,
       'lieu_longitude': lieuLongitude,
-      'organisateur': organisateurId,
+      'organisateur_id': organisateurId,  // ✅ Utiliser organisateur_id
       'organisateur_nom': organisateurNom,
       'moyenne_avis': moyenneAvis,
       'nombre_avis': nombreAvis,
@@ -256,6 +304,6 @@ class EvenementModel extends Equatable {
 
   @override
   String toString() {
-    return 'EvenementModel(id: $id, nom: $nom, description: "${description.substring(0, description.length > 50 ? 50 : description.length)}...", lieu: $lieuNom)';
+    return 'EvenementModel(id: $id, nom: $nom, organisateurId: $organisateurId, lieu: $lieuNom)';
   }
 }

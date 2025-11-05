@@ -4,7 +4,8 @@ import 'package:event_flow/core/providers/auth_provider.dart';
 import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_delete_page.dart';
 import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_edit_page.dart';
 import 'package:event_flow/presentation/widgets/widgets.dart';
-import 'package:flutter/material.dart' hide ErrorWidget;
+import 'package:flutter/material.dart';
+import 'package:event_flow/domains/injections/service_locator.dart' as di;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -27,8 +28,8 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => AvisLieuNotifier(
-        repo: context.read(),
-        logger: context.read(),
+        repo: di.getIt(),
+        logger: di.getIt(),
         lieuId: widget.lieuId,
       ),
       child: Scaffold(
@@ -42,10 +43,11 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                 );
 
                 if (avisIndex == -1) return const SizedBox.shrink();
-                
+
                 final avis = avisNotifier.avis[avisIndex];
 
-                final isMyAvis = authNotifier.currentUser?.id == avis.utilisateurId;
+                final isMyAvis =
+                    authNotifier.currentUser?.id == avis.utilisateurId;
 
                 if (!isMyAvis) return const SizedBox.shrink();
 
@@ -65,11 +67,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                       onTap: () => _handleDelete(avis),
                       child: const Row(
                         children: [
-                          Icon(
-                            Icons.delete,
-                            size: 18,
-                            color: AppColors.error,
-                          ),
+                          Icon(Icons.delete, size: 18, color: AppColors.error),
                           SizedBox(width: 8),
                           Text(
                             'Supprimer',
@@ -87,9 +85,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
         body: Consumer2<AvisLieuNotifier, AuthNotifier>(
           builder: (context, avisNotifier, authNotifier, _) {
             if (avisNotifier.isLoading) {
-              return const LoadingWidget(
-                message: 'Chargement de l\'avis...',
-              );
+              return const LoadingWidget(message: 'Chargement de l\'avis...');
             }
 
             if (avisNotifier.error != null) {
@@ -147,9 +143,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                             Expanded(
                               child: Text(
                                 avis.lieuNom,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
+                                style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -240,7 +234,9 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                                           decoration: BoxDecoration(
                                             color: AppColors.primaryOrange
                                                 .withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           child: Text(
                                             'Mon avis',
@@ -284,9 +280,8 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                         // Note
                         Text(
                           'Note',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         Container(
@@ -295,7 +290,9 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                             color: _getRatingColor(avis.note).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _getRatingColor(avis.note).withOpacity(0.3),
+                              color: _getRatingColor(
+                                avis.note,
+                              ).withOpacity(0.3),
                             ),
                           ),
                           child: Column(
@@ -333,9 +330,8 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                         // Commentaire
                         Text(
                           'Commentaire',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         Container(
@@ -375,9 +371,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleSmall
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -460,16 +454,16 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.mediumGrey,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
         ),
         Expanded(
           child: Text(
             value,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontFamily: 'monospace',
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -503,9 +497,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
   void _navigateToEdit(dynamic avis) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => AvisLieuEditPage(avis: avis),
-      ),
+      MaterialPageRoute(builder: (_) => AvisLieuEditPage(avis: avis)),
     ).then((updated) {
       if (updated == true && mounted) {
         context.read<AvisLieuNotifier>().refreshAvis();
@@ -524,10 +516,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
 
     if (confirmed && mounted) {
       Navigator.pop(context);
-      SnackBarHelper.showSuccess(
-        context,
-        'Avis supprimé avec succès',
-      );
+      SnackBarHelper.showSuccess(context, 'Avis supprimé avec succès');
     }
   }
 }

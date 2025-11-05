@@ -1,5 +1,3 @@
-
-
 // ==================== PROFILE PAGE ====================
 
 import 'package:event_flow/config/theme/app_color.dart';
@@ -9,8 +7,33 @@ import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    // ✅ CORRECTION : Charger le profil au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProfile();
+    });
+  }
+
+  Future<void> _loadProfile() async {
+    if (!mounted) return;
+    
+    final authNotifier = context.read<AuthNotifier>();
+    
+    // Si authentifié, rafraîchir le profil depuis l'API
+    if (authNotifier.isAuthenticated) {
+      await authNotifier.refreshProfile();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +41,48 @@ class ProfilePage extends StatelessWidget {
       appBar: CustomAppBar(
         title: 'Profil',
         showBackButton: false,
+        actions: [
+          // ✅ AJOUT : Bouton de rafraîchissement manuel
+          Consumer<AuthNotifier>(
+            builder: (context, authNotifier, _) {
+              if (!authNotifier.isAuthenticated) {
+                return const SizedBox.shrink();
+              }
+              
+              return IconButton(
+                icon: authNotifier.isLoading 
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+                onPressed: authNotifier.isLoading 
+                  ? null 
+                  : () => authNotifier.refreshProfile(),
+                tooltip: 'Actualiser le profil',
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<AuthNotifier>(
         builder: (context, authNotifier, _) {
+          // ✅ AJOUT : Afficher un loader pendant le chargement initial
+          if (authNotifier.isLoading && authNotifier.currentUser == null) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
           if (!authNotifier.isAuthenticated) {
             return _buildUnauthenticatedProfile(context);
           }
 
-          return _buildAuthenticatedProfile(context, authNotifier);
+          return RefreshIndicator(
+            onRefresh: () => authNotifier.refreshProfile(),
+            child: _buildAuthenticatedProfile(context, authNotifier),
+          );
         },
       ),
     );
@@ -82,6 +139,15 @@ class ProfilePage extends StatelessWidget {
                 minimumSize: const Size.fromHeight(50),
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Mode visiteur
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Continuer en tant que visiteur'),
+            ),
           ],
         ),
       ),
@@ -95,6 +161,7 @@ class ProfilePage extends StatelessWidget {
     final user = authNotifier.currentUser;
 
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(), // ✅ Pour le RefreshIndicator
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -147,6 +214,29 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
+          // ✅ AJOUT : Afficher la date d'inscription
+          if (user?.dateCreation != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.info.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, color: AppColors.info, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Membre depuis ${_formatDate(user!.dateCreation)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 24),
+
           // Actions
           Card(
             child: Column(
@@ -184,12 +274,37 @@ class ProfilePage extends StatelessWidget {
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () async {
-                    await authNotifier.logout();
-                    if (context.mounted) {
-                      SnackBarHelper.showSuccess(
-                        context,
-                        'Déconnexion réussie',
-                      );
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Déconnexion'),
+                        content: const Text(
+                          'Êtes-vous sûr de vouloir vous déconnecter ?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Annuler'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.error,
+                            ),
+                            child: const Text('Se déconnecter'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirmed == true && mounted) {
+                      await authNotifier.logout();
+                      if (mounted) {
+                        SnackBarHelper.showSuccess(
+                          context,
+                          'Déconnexion réussie',
+                        );
+                      }
                     }
                   },
                 ),
@@ -229,5 +344,14 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // ✅ AJOUT : Helper pour formater la date
+  String _formatDate(DateTime date) {
+    final months = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

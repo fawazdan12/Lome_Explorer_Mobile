@@ -1,6 +1,6 @@
 import 'package:event_flow/config/theme/app_color.dart';
-import 'package:event_flow/core/providers/avis_provider.dart';
 import 'package:event_flow/core/providers/auth_provider.dart';
+import 'package:event_flow/core/providers/avis_provider.dart';
 import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_create_page.dart';
 import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_delete_page.dart';
 import 'package:event_flow/presentation/pages/avis/lieu/avis_lieu_detail_page.dart';
@@ -9,6 +9,7 @@ import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:event_flow/domains/injections/service_locator.dart' as di;
 
 class AvisLieuListPage extends StatefulWidget {
   final String lieuId;
@@ -29,10 +30,11 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ CORRECTION : Créer le provider AVEC les dépendances depuis GetIt
     return ChangeNotifierProvider(
       create: (_) => AvisLieuNotifier(
-        repo: context.read(),
-        logger: context.read(),
+        repo: di.getIt(), // ✅ Utiliser GetIt au lieu de context.read()
+        logger: di.getIt(), // ✅ Utiliser GetIt au lieu de context.read()
         lieuId: widget.lieuId,
       ),
       child: Scaffold(
@@ -115,9 +117,8 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
                       Expanded(
                         child: Text(
                           widget.lieuNom,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -132,9 +133,9 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
                       final moyenneNote = avisNotifier.avis.isEmpty
                           ? 0.0
                           : avisNotifier.avis
-                                  .map((a) => a.note)
-                                  .reduce((a, b) => a + b) /
-                              avisNotifier.avis.length;
+                                    .map((a) => a.note)
+                                    .reduce((a, b) => a + b) /
+                                avisNotifier.avis.length;
 
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -184,7 +185,8 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
                   if (avisNotifier.avis.isEmpty) {
                     return EmptyStateWidget(
                       title: 'Aucun avis',
-                      message: 'Soyez le premier à donner votre avis sur ce lieu',
+                      message:
+                          'Soyez le premier à donner votre avis sur ce lieu',
                       icon: Icons.rate_review,
                       onAction: () => _navigateToCreate(),
                       actionLabel: 'Donner mon avis',
@@ -202,22 +204,16 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final avis = sortedAvis[index];
-                        final isMyAvis = context
-                                .read<AuthNotifier>()
-                                .currentUser
-                                ?.id ==
+                        final isMyAvis =
+                            context.read<AuthNotifier>().currentUser?.id ==
                             avis.utilisateurId;
 
                         return AvisLieuCardWidget(
                           avis: avis,
                           isMyAvis: isMyAvis,
                           onTap: () => _navigateToDetail(avis.id),
-                          onEdit: isMyAvis
-                              ? () => _navigateToEdit(avis)
-                              : null,
-                          onDelete: isMyAvis
-                              ? () => _handleDelete(avis)
-                              : null,
+                          onEdit: isMyAvis ? () => _navigateToEdit(avis) : null,
+                          onDelete: isMyAvis ? () => _handleDelete(avis) : null,
                         );
                       },
                     ),
@@ -231,6 +227,25 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
           builder: (context, authNotifier, _) {
             if (!authNotifier.isAuthenticated) {
               return const SizedBox.shrink();
+            }
+
+            final currentUserId = authNotifier.currentUser?.id;
+            final avisNotifier = context.watch<AvisLieuNotifier>();
+            final hasExistingAvis = avisNotifier.avis.any(
+              (avis) => avis.utilisateurId == currentUserId,
+            );
+            if (hasExistingAvis) {
+              // Afficher "Modifier mon avis" au lieu de "Donner mon avis"
+              final myAvis = avisNotifier.avis.firstWhere(
+                (avis) => avis.utilisateurId == currentUserId,
+              );
+
+              return FloatingActionButton.extended(
+                onPressed: () => _navigateToEdit(myAvis),
+                icon: const Icon(Icons.edit),
+                label: const Text('Modifier mon avis'),
+                backgroundColor: AppColors.primaryOrange,
+              );
             }
 
             return FloatingActionButton.extended(
@@ -270,9 +285,9 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.mediumGrey,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
         ),
       ],
     );
@@ -303,10 +318,8 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AvisLieuCreatePage(
-          lieuId: widget.lieuId,
-          lieuNom: widget.lieuNom,
-        ),
+        builder: (_) =>
+            AvisLieuCreatePage(lieuId: widget.lieuId, lieuNom: widget.lieuNom),
       ),
     ).then((created) {
       if (created == true) {
@@ -319,10 +332,8 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AvisLieuDetailPage(
-          lieuId: widget.lieuId,
-          avisId: avisId,
-        ),
+        builder: (_) =>
+            AvisLieuDetailPage(lieuId: widget.lieuId, avisId: avisId),
       ),
     );
   }
@@ -330,9 +341,7 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
   void _navigateToEdit(dynamic avis) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => AvisLieuEditPage(avis: avis),
-      ),
+      MaterialPageRoute(builder: (_) => AvisLieuEditPage(avis: avis)),
     ).then((updated) {
       if (updated == true) {
         context.read<AvisLieuNotifier>().refreshAvis();
@@ -422,7 +431,9 @@ class AvisLieuCardWidget extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange.withOpacity(0.2),
+                                  color: AppColors.primaryOrange.withOpacity(
+                                    0.2,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -440,9 +451,8 @@ class AvisLieuCardWidget extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           DateFormat('dd/MM/yyyy').format(avis.date),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.mediumGrey,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.mediumGrey),
                         ),
                       ],
                     ),
