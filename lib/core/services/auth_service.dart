@@ -20,22 +20,22 @@ class AuthenticationService {
        _localDataSource = localDataSource,
        _preferences = preferences,
        _logger = logger {
-    // ✅ CORRECTION : Initialiser le token au démarrage
+    // Initialisation de token au démarrage
     initializeTokenFromCache();
   }
 
-  /// Vérifier si l'utilisateur est connecté
+  /// Vérification si l'utilisateur est connecté
   bool get isAuthenticated {
     return _preferences.containsKey(LocalStorageKeys.token) &&
         _preferences.getString(LocalStorageKeys.token)?.isNotEmpty == true;
   }
 
-  /// Obtenir le token actuel
+  /// Obtention le token actuel
   String? get token {
     return _preferences.getString(LocalStorageKeys.token);
   }
 
-  /// Enregistrer un nouvel utilisateur
+  /// Enregistrement d'un nouvel utilisateur
   Future<AuthenticationModel> register({
     required String username,
     required String email,
@@ -57,8 +57,8 @@ class AuthenticationService {
       // Sauvegarder le token et les données
       await _saveAuthData(auth);
 
-      _logger.i('✅ Inscription réussie pour: $email');
-      _logger.i('✅ Token sauvegardé: ${auth.token.substring(0, 20)}...');
+      _logger.i('Inscription réussie pour: $email');
+      _logger.i('Token sauvegardé: ${auth.token.substring(0, 20)}...');
 
       return auth;
     } catch (e) {
@@ -80,18 +80,18 @@ class AuthenticationService {
         password: password,
       );
 
-      _logger.i('📥 Token reçu de l\'API: ${auth.token}');
-      _logger.i('📏 Longueur du token: ${auth.token.length}');
+      _logger.i('Token reçu de l\'API: ${auth.token}');
+      _logger.i('Longueur du token: ${auth.token.length}');
 
       if (auth.token.isEmpty) {
-        _logger.e('❌ ERREUR : Token vide reçu de l\'API !');
+        _logger.e('ERREUR : Token vide reçu de l\'API !');
         throw Exception('Token vide reçu du serveur');
       }
 
       // Sauvegarder le token et les données
       await _saveAuthData(auth);
 
-      _logger.i('✅ Connexion réussie pour: $email');
+      _logger.i('Connexion réussie pour: $email');
 
       return auth;
     } catch (e) {
@@ -158,27 +158,27 @@ class AuthenticationService {
   /// Sauvegarder les données d'authentification
   Future<void> _saveAuthData(AuthenticationModel auth) async {
     try {
-      _logger.d('💾 Sauvegarde des données d\'authentification...');
+      _logger.d('Sauvegarde des données d\'authentification...');
 
-      // 1. Sauvegarder le token dans SharedPreferences
+      // Sauvegarder le token dans SharedPreferences
       await _preferences.setString(LocalStorageKeys.token, auth.token);
-      _logger.d('✅ Token sauvegardé dans SharedPreferences');
+      _logger.d('Token sauvegardé dans SharedPreferences');
 
-      // 2. ⚠️ CRITIQUE : Mettre à jour RemoteDataSource avec le token
+      // Mettre à jour RemoteDataSource avec le token
       _remoteDataSource.setToken(auth.token);
-      _logger.d('✅ Token défini dans RemoteDataSource');
+      _logger.d('Token défini dans RemoteDataSource');
 
-      // 3. Mettre en cache l'utilisateur
+      // Mettre en cache l'utilisateur
       await _localDataSource.cacheUtilisateur(auth.utilisateur);
-      _logger.d('✅ Utilisateur mis en cache');
+      _logger.d('Utilisateur mis en cache');
 
-      // 4. Marquer comme connecté
+      // Marquer comme connecté
       await _preferences.setBool(LocalStorageKeys.isLoggedIn, true);
-      _logger.d('✅ Marqué comme connecté');
+      _logger.d('Marqué comme connecté');
 
-      _logger.i('✅ Données d\'authentification sauvegardées avec succès');
+      _logger.i('Données d\'authentification sauvegardées avec succès');
     } catch (e) {
-      _logger.e('❌ Erreur lors de la sauvegarde des données auth: $e');
+      _logger.e('Erreur lors de la sauvegarde des données auth: $e');
       rethrow;
     }
   }
@@ -186,25 +186,25 @@ class AuthenticationService {
   /// Nettoyer les données d'authentification
   Future<void> _clearAuthData() async {
     try {
-      _logger.d('🧹 Nettoyage des données d\'authentification...');
+      _logger.d('Nettoyage des données d\'authentification...');
 
       // 1. Nettoyer SharedPreferences
       await _preferences.remove(LocalStorageKeys.token);
       await _preferences.remove(LocalStorageKeys.isLoggedIn);
       await _preferences.remove(LocalStorageKeys.utilisateur);
-      _logger.d('✅ SharedPreferences nettoyé');
+      _logger.d('SharedPreferences nettoyé');
 
       // 2. Nettoyer le token dans RemoteDataSource
       _remoteDataSource.clearToken();
-      _logger.d('✅ Token nettoyé dans RemoteDataSource');
+      _logger.d('Token nettoyé dans RemoteDataSource');
 
       // 3. Nettoyer le cache Hive
       await _localDataSource.clearUtilisateur();
-      _logger.d('✅ Cache Hive nettoyé');
+      _logger.d('Cache Hive nettoyé');
 
-      _logger.i('✅ Données d\'authentification nettoyées');
+      _logger.i('Données d\'authentification nettoyées');
     } catch (e) {
-      _logger.e('❌ Erreur lors du nettoyage des données auth: $e');
+      _logger.e('Erreur lors du nettoyage des données auth: $e');
     }
   }
 
@@ -215,13 +215,13 @@ class AuthenticationService {
       if (token != null && token.isNotEmpty) {
         _remoteDataSource.setToken(token);
         _logger.i(
-          '✅ Token initialisé depuis le cache: ${token.substring(0, 20)}...',
+          'Token initialisé depuis le cache: ${token.substring(0, 20)}...',
         );
       } else {
-        _logger.w('⚠️ Aucun token trouvé dans le cache');
+        _logger.w('Aucun token trouvé dans le cache');
       }
     } catch (e) {
-      _logger.e('❌ Erreur lors de l\'initialisation du token: $e');
+      _logger.e('Erreur lors de l\'initialisation du token: $e');
     }
   }
 }

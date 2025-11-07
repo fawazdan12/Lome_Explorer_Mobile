@@ -44,7 +44,7 @@ class _AvisEvenementListPageState extends State<AvisEvenementListPage> {
             // Header avec nom de l'événement
             Container(
               padding: const EdgeInsets.all(16),
-              color: AppColors.primaryBlue.withOpacity(0.1),
+              color: AppColors.primaryBlue.withAlpha((255 * 0.1).round()),
               child: Row(
                 children: [
                   Icon(
@@ -197,7 +197,7 @@ class _AvisEvenementListPageState extends State<AvisEvenementListPage> {
           Container(
             width: 1,
             height: 60,
-            color: AppColors.mediumGrey.withOpacity(0.3),
+            color: AppColors.mediumGrey.withAlpha((255 * 0.3).round()),
           ),
           Column(
             children: [

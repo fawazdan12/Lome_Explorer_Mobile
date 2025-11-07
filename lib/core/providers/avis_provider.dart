@@ -64,10 +64,6 @@ class AvisLieuNotifier extends ChangeNotifier {
     await fetchAvis();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== CREATE AVIS LIEU NOTIFIER ====================
@@ -135,10 +131,6 @@ class CreateAvisLieuNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== UPDATE AVIS LIEU NOTIFIER ====================
@@ -206,10 +198,6 @@ class UpdateAvisLieuNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== DELETE AVIS LIEU NOTIFIER ====================
@@ -272,10 +260,6 @@ class DeleteAvisLieuNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== AVIS ÉVÉNEMENTS NOTIFIER ====================
@@ -360,10 +344,6 @@ class AvisEvenementNotifier extends ChangeNotifier {
     await fetchAvis();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // Factory pour créer AvisEvenementNotifier avec les dépendances injectées
@@ -446,10 +426,6 @@ class CreateAvisEvenementNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== UPDATE AVIS ÉVÉNEMENT NOTIFIER ====================
@@ -517,10 +493,6 @@ class UpdateAvisEvenementNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== DELETE AVIS ÉVÉNEMENT NOTIFIER ====================
@@ -583,8 +555,4 @@ class DeleteAvisEvenementNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

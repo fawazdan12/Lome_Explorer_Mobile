@@ -66,7 +66,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
 
               return Row(
                 children: [
-                  // ✅ Bouton édition avec vérification de propriété
+                  // Bouton édition avec vérification de propriété
                   OwnershipEditButton(
                     lieu: lieu,
                     onPressed: () async {
@@ -86,7 +86,6 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                   // Menu avec suppression protégée
                   OwnerOnly(
                     lieu: lieu,
-
                     fallback: IconButton(
                       icon: const Icon(Icons.more_vert),
                       onPressed: () => _showPublicMenu(context, lieu),
@@ -132,7 +131,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
             );
           }
 
-          // 🐛 DEBUG: Afficher les données du lieu
+          // Afficher les données du lieu
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.read<LieuDetailNotifier>().cache.forEach((key, value) {
               if (value != null) {
@@ -212,9 +211,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryGreen.withOpacity(
-                                    0.1,
-                                  ),
+                                  color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -261,10 +258,15 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    // Ouvrir dans Google Maps
-                                    SnackBarHelper.showInfo(
+                                    // ouvrir l'application de navigation
+                                    AppRoutes.navigateTo(
                                       context,
-                                      'Navigation à venir',
+                                      AppRoutes.map,
+                                      arguments: {
+                                        'latitude': lieu.latitude,
+                                        'longitude': lieu.longitude,
+                                        'lieuNom': lieu.nom,
+                                      },
                                     );
                                   },
                                   icon: const Icon(Icons.navigation),
@@ -320,7 +322,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppColors.info.withOpacity(0.1),
+                              color: AppColors.info.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -464,12 +466,12 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                         ),
                         const SizedBox(height: 12),
 
-                        // ✅ AJOUT : Statistiques des avis
+                        //  Statistiques des avis
                         if (lieu.moyenneAvis != null)
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: AppColors.ratingColor.withOpacity(0.1),
+                              color: AppColors.ratingColor.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -502,7 +504,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                           ),
                         const SizedBox(height: 16),
 
-                        // ✅ AJOUT : Bouton pour voir/donner un avis
+                        //  Bouton pour voir/donner un avis
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
@@ -565,7 +567,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
         gradient: LinearGradient(
           colors: [
             AppColors.primaryOrange,
-            AppColors.primaryOrange.withOpacity(0.7),
+            AppColors.primaryOrange.withAlpha((255 * 0.7).round()),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -607,7 +609,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withAlpha((255 * 0.2).round()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -629,7 +631,7 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withAlpha((255 * 0.2).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -816,9 +818,9 @@ class _LieuDetailPageState extends State<LieuDetailPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withAlpha((255 * 0.1).round()),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                border: Border.all(color: Colors.red.withAlpha((255 * 0.3).round())),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

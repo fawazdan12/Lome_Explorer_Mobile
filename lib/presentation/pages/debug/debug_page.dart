@@ -1,4 +1,3 @@
-// 🧪 PAGE DE TEST À AJOUTER TEMPORAIREMENT
 // Pour déboguer les problèmes d'ownership
 
 import 'package:event_flow/core/providers/auth_provider.dart';
@@ -14,7 +13,7 @@ class DebugOwnershipPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🐛 Debug Ownership'),
+        title: const Text('Debug Ownership'),
         backgroundColor: Colors.orange,
       ),
       body: SingleChildScrollView(
@@ -23,7 +22,7 @@ class DebugOwnershipPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section Utilisateur
-            _buildSectionHeader('👤 UTILISATEUR CONNECTÉ'),
+            _buildSectionHeader('UTILISATEUR CONNECTÉ'),
             Consumer<AuthNotifier>(
               builder: (context, authNotifier, _) {
                 if (!authNotifier.isAuthenticated) {
@@ -31,7 +30,7 @@ class DebugOwnershipPage extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: Text(
-                        '❌ NON CONNECTÉ',
+                        'NON CONNECTÉ',
                         style: TextStyle(color: Colors.red, fontSize: 18),
                       ),
                     ),
@@ -45,7 +44,7 @@ class DebugOwnershipPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDebugRow('✅ Authentifié', 'OUI', Colors.green),
+                        _buildDebugRow('Authentifié', 'OUI', Colors.green),
                         const Divider(),
                         _buildCopyableRow('ID', user?.id ?? 'null'),
                         _buildDebugRow('Username', user?.username ?? 'null', null),
@@ -61,7 +60,7 @@ class DebugOwnershipPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Section Lieux
-            _buildSectionHeader('📍 MES LIEUX (Premiers 5)'),
+            _buildSectionHeader('MES LIEUX (Premiers 5)'),
             Consumer<LieuxNotifier>(
               builder: (context, lieuxNotifier, _) {
                 if (lieuxNotifier.isLoading) {
@@ -110,7 +109,7 @@ class DebugOwnershipPage extends StatelessWidget {
                             _buildDebugRow('Propriétaire nom', lieu.proprietaireNom, null),
                             _buildDebugRow(
                               'Match avec user ?',
-                              isOwner ? '✅ OUI' : '❌ NON',
+                              isOwner ? 'OUI' : 'NON',
                               isOwner ? Colors.green : Colors.red,
                             ),
                           ],
@@ -124,7 +123,7 @@ class DebugOwnershipPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Section Événements
-            _buildSectionHeader('📅 MES ÉVÉNEMENTS (Premiers 5)'),
+            _buildSectionHeader('MES ÉVÉNEMENTS (Premiers 5)'),
             Consumer<EvenementsNotifier>(
               builder: (context, evenementsNotifier, _) {
                 if (evenementsNotifier.isLoading) {
@@ -173,7 +172,7 @@ class DebugOwnershipPage extends StatelessWidget {
                             _buildDebugRow('Organisateur nom', evt.organisateurNom, null),
                             _buildDebugRow(
                               'Match avec user ?',
-                              isOwner ? '✅ OUI' : '❌ NON',
+                              isOwner ? 'OUI' : 'NON',
                               isOwner ? Colors.green : Colors.red,
                             ),
                           ],

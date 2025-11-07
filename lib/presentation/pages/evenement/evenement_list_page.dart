@@ -80,7 +80,7 @@ class _EvenementListPageState extends State<EvenementListPage> {
                         onSelected: (selected) {
                           searchNotifier.setAVenir(true);
                         },
-                        selectedColor: AppColors.primaryBlue.withOpacity(0.3),
+                        selectedColor: AppColors.primaryBlue.withAlpha((255 * 0.3).round()),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -91,7 +91,7 @@ class _EvenementListPageState extends State<EvenementListPage> {
                         onSelected: (selected) {
                           searchNotifier.setAVenir(false);
                         },
-                        selectedColor: AppColors.mediumGrey.withOpacity(0.3),
+                        selectedColor: AppColors.mediumGrey.withAlpha((255 * 0.3).round()),
                       ),
                     ),
                   ],
@@ -234,7 +234,7 @@ class _SecuredEvenementCard extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange.withOpacity(0.2),
+                                  color: AppColors.primaryOrange.withAlpha((255 * 0.2).round()),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
@@ -351,8 +351,8 @@ class _SecuredEvenementCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isUpcoming
-                      ? AppColors.primaryBlue.withOpacity(0.1)
-                      : AppColors.mediumGrey.withOpacity(0.1),
+                      ? AppColors.primaryBlue.withAlpha((255 * 0.1).round())
+                      : AppColors.mediumGrey.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -455,9 +455,9 @@ void _showDeleteDialog(
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withAlpha((255 * 0.3).round())),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,8 +700,8 @@ class EvenementCardWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isUpcoming
-                      ? AppColors.primaryBlue.withOpacity(0.1)
-                      : AppColors.mediumGrey.withOpacity(0.1),
+                      ? AppColors.primaryBlue.withAlpha((255 * 0.1).round())
+                      : AppColors.mediumGrey.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(

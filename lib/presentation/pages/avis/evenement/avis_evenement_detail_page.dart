@@ -37,15 +37,12 @@ class AvisEvenementDetailPage extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    // Naviguer vers édition
-                    Future.delayed(Duration.zero, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AvisEvenementEditPage(avis: avis),
-                        ),
-                      );
-                    });
+                    // Naviguer vers édition sans gap async
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AvisEvenementEditPage(avis: avis),
+                      ),
+                    );
                   },
                 ),
                 PopupMenuItem(
@@ -59,9 +56,8 @@ class AvisEvenementDetailPage extends StatelessWidget {
                   ),
                   onTap: () {
                     // Supprimer
-                    Future.delayed(Duration.zero, () {
                       _showDeleteDialog(context);
-                    });
+                    
                   },
                 ),
               ],
@@ -79,7 +75,7 @@ class AvisEvenementDetailPage extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     AppColors.primaryBlue,
-                    AppColors.primaryBlue.withOpacity(0.7),
+                    AppColors.primaryBlue.withAlpha((255 * 0.7).round()),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -170,7 +166,7 @@ class AvisEvenementDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue.withOpacity(0.1),
+                      color: AppColors.primaryBlue.withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -235,7 +231,7 @@ class AvisEvenementDetailPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withAlpha((255 * 0.1).round()),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(

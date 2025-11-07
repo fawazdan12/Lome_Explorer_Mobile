@@ -1,6 +1,11 @@
 class ApiConstants {
+  // Pour développement local (émulateur Android)
+  static const String devBaseUrl = 'http://10.0.2.2:8000';
+  
+  // Pour production (remplacer par votre IP/domaine)
+  static const String prodBaseUrl = 'https://api.lome-explorer.com';
   // Base URL de l'API
-  static const String baseUrl = 'http://10.0.2.2:8000'; // 10.5.49.39
+  static const String baseUrl = devBaseUrl; // 10.5.49.39
   
   // Endpoints d'authentification
   static const String authRegister = '/fastapi/auth/register/';
@@ -63,10 +68,9 @@ class ApiConstants {
   static const String contentTypeJson = 'application/json';
   static const String authorization = 'Authorization';
   
-  // ✅✅✅ CORRECTION ICI ✅✅✅
-  // Django REST Framework TokenAuthentication utilise "Token" et non "Bearer"
-  static const String bearerToken = 'Token '; // ← Changé de 'Bearer ' à 'Token '
-  // ✅✅✅ FIN DE LA CORRECTION ✅✅✅
+  
+  static const String bearerToken = 'Token '; 
+  
 }
 
 class LocalStorageKeys {

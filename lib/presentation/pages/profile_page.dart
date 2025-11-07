@@ -18,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // ✅ CORRECTION : Charger le profil au démarrage
+    // Charger le profil au démarrage
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProfile();
     });
@@ -42,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title: 'Profil',
         showBackButton: false,
         actions: [
-          // ✅ AJOUT : Bouton de rafraîchissement manuel
+          // Bouton de rafraîchissement manuel
           Consumer<AuthNotifier>(
             builder: (context, authNotifier, _) {
               if (!authNotifier.isAuthenticated) {
@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Consumer<AuthNotifier>(
         builder: (context, authNotifier, _) {
-          // ✅ AJOUT : Afficher un loader pendant le chargement initial
+          // Afficher un loader pendant le chargement initial
           if (authNotifier.isLoading && authNotifier.currentUser == null) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -161,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = authNotifier.currentUser;
 
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(), // ✅ Pour le RefreshIndicator
+      physics: const AlwaysScrollableScrollPhysics(), 
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -214,12 +214,12 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 24),
 
-          // ✅ AJOUT : Afficher la date d'inscription
+          //  Afficher la date d'inscription
           if (user?.dateCreation != null)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.1),
+                color: AppColors.info.withAlpha((255 * 0.1).round()),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -346,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // ✅ AJOUT : Helper pour formater la date
+  // Helper pour formater la date
   String _formatDate(DateTime date) {
     final months = [
       'janvier', 'février', 'mars', 'avril', 'mai', 'juin',

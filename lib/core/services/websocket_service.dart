@@ -19,30 +19,30 @@ class WebSocketService {
   /// Se connecter aux notifications générales
   Future<void> connectToGeneralNotifications() async {
     try {
-      _logger.i('🔌 Connexion aux notifications générales');
+      _logger.i('Connexion aux notifications générales');
       final result = await _repository.connectToEvents();
 
       result.fold(
-        (failure) => _logger.e('❌ Erreur connexion: ${failure.message}'),
-        (_) => _logger.i('✅ Connecté aux notifications générales'),
+        (failure) => _logger.e('Erreur connexion: ${failure.message}'),
+        (_) => _logger.i('Connecté aux notifications générales'),
       );
     } catch (e) {
-      _logger.e('❌ Erreur: $e');
+      _logger.e('Erreur: $e');
     }
   }
 
   /// Se connecter aux notifications personnelles
   Future<void> connectToPersonalNotifications(String token) async {
     try {
-      _logger.i('🔌 Connexion aux notifications personnelles');
+      _logger.i('Connexion aux notifications personnelles');
       final result = await _repository.connectToPersonal(token);
 
       result.fold(
-        (failure) => _logger.e('❌ Erreur connexion: ${failure.message}'),
-        (_) => _logger.i('✅ Connecté aux notifications personnelles'),
+        (failure) => _logger.e('Erreur connexion: ${failure.message}'),
+        (_) => _logger.i('Connecté aux notifications personnelles'),
       );
     } catch (e) {
-      _logger.e('❌ Erreur: $e');
+      _logger.e('Erreur: $e');
     }
   }
 
@@ -53,7 +53,7 @@ class WebSocketService {
     int radius = 10,
   }) async {
     try {
-      _logger.i('🔌 Connexion aux notifications de localisation');
+      _logger.i('Connexion aux notifications de localisation');
       final result = await _repository.connectToLocation(
         latitude: latitude,
         longitude: longitude,
@@ -61,41 +61,41 @@ class WebSocketService {
       );
 
       result.fold(
-        (failure) => _logger.e('❌ Erreur connexion: ${failure.message}'),
-        (_) => _logger.i('✅ Connecté aux notifications de localisation'),
+        (failure) => _logger.e('Erreur connexion: ${failure.message}'),
+        (_) => _logger.i('Connecté aux notifications de localisation'),
       );
     } catch (e) {
-      _logger.e('❌ Erreur: $e');
+      _logger.e('Erreur: $e');
     }
   }
 
   /// Se déconnecter
   Future<void> disconnect() async {
     try {
-      _logger.i('🔌 Déconnexion WebSocket');
+      _logger.i('Déconnexion WebSocket');
       final result = await _repository.disconnect();
 
       result.fold(
-        (failure) => _logger.e('❌ Erreur déconnexion: ${failure.message}'),
-        (_) => _logger.i('✅ Déconnecté'),
+        (failure) => _logger.e('Erreur déconnexion: ${failure.message}'),
+        (_) => _logger.i('Déconnecté'),
       );
     } catch (e) {
-      _logger.e('❌ Erreur: $e');
+      _logger.e('Erreur: $e');
     }
   }
 
   /// Reconnecter
   Future<void> reconnect() async {
     try {
-      _logger.i('🔄 Reconnexion WebSocket');
+      _logger.i('Reconnexion WebSocket');
       final result = await _repository.reconnect();
 
       result.fold(
-        (failure) => _logger.e('❌ Erreur reconnexion: ${failure.message}'),
-        (_) => _logger.i('✅ Reconnecté'),
+        (failure) => _logger.e('Erreur reconnexion: ${failure.message}'),
+        (_) => _logger.i('Reconnecté'),
       );
     } catch (e) {
-      _logger.e('❌ Erreur: $e');
+      _logger.e('Erreur: $e');
     }
   }
 
@@ -114,8 +114,8 @@ class WebSocketService {
     );
 
     result.fold(
-      (failure) => _logger.e('❌ Erreur abonnement: ${failure.message}'),
-      (_) => _logger.i('✅ Abonné à la zone ($latitude, $longitude)'),
+      (failure) => _logger.e('Erreur abonnement: ${failure.message}'),
+      (_) => _logger.i('Abonné à la zone ($latitude, $longitude)'),
     );
   }
 
@@ -124,8 +124,8 @@ class WebSocketService {
     final result = _repository.subscribeToCategories(categories);
 
     result.fold(
-      (failure) => _logger.e('❌ Erreur abonnement: ${failure.message}'),
-      (_) => _logger.i('✅ Abonné aux catégories: ${categories.join(', ')}'),
+      (failure) => _logger.e('Erreur abonnement: ${failure.message}'),
+      (_) => _logger.i('Abonné aux catégories: ${categories.join(', ')}'),
     );
   }
 

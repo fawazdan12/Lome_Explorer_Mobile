@@ -334,7 +334,7 @@ class LieuCardWidget extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withOpacity(0.1),
+                            color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

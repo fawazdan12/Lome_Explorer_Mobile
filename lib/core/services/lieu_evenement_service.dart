@@ -246,8 +246,8 @@ class LieuEvenementService {
         lieuId: lieuId,
       );
 
-      _logger.i('🔔 Événement créé: ${evenement.id}');
-      _logger.i('🔔 Le serveur Django devrait envoyer une notification maintenant');
+      _logger.i('Événement créé: ${evenement.id}');
+      _logger.i('Le serveur Django devrait envoyer une notification maintenant');
       // Vider le cache pour forcer le rafraîchissement
       await _localDataSource.clearEvenements();
 

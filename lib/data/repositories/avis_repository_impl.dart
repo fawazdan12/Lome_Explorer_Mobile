@@ -33,10 +33,10 @@ class AvisRepositoryImpl implements AvisRepository {
     required String texte,
   }) async {
     try {
-      _logger.i('🔍 [REPO] createAvisLieu appelé');
-      _logger.i('   lieuId: $lieuId (length: ${lieuId.length})');
-      _logger.i('   note: $note');
-      _logger.i('   texte length: ${texte.length}');
+      _logger.i('[REPO] createAvisLieu appelé');
+      _logger.i('lieuId: $lieuId (length: ${lieuId.length})');
+      _logger.i('note: $note');
+      _logger.i('texte length: ${texte.length}');
       final avis = await _service.createAvisLieu(
         lieuId: lieuId,
         note: note,

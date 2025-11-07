@@ -58,7 +58,7 @@ class MapMarkerInfoWindow extends StatelessWidget {
               const SizedBox(height: 4),
               Chip(
                 label: Text(item.categorie!),
-                backgroundColor: AppColors.primaryGreen.withOpacity(0.2),
+                backgroundColor: AppColors.primaryGreen.withAlpha((255 * 0.2).round()),
                 padding: EdgeInsets.zero,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),

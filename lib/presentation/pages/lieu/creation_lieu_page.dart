@@ -51,7 +51,7 @@ class _LieuCreatePageState extends State<LieuCreatePage> {
   @override
   void initState() {
     super.initState();
-    // ✅ Vérifier l'authentification au chargement
+    // Vérifier l'authentification au chargement
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAuthentication();
     });
@@ -356,7 +356,7 @@ class _LieuCreatePageState extends State<LieuCreatePage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -453,7 +453,7 @@ class _LieuCreatePageState extends State<LieuCreatePage> {
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha((255 * 0.1).round()),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -651,7 +651,7 @@ class _LieuCreatePageState extends State<LieuCreatePage> {
 
   // Dans _handleSubmit, ajouter une double vérification :
   Future<void> _handleSubmit() async {
-    // ✅ Double vérification avant soumission
+    // Double vérification avant soumission
     final authNotifier = context.read<AuthNotifier>();
     if (!authNotifier.isAuthenticated) {
       SnackBarHelper.showError(

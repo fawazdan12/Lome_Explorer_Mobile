@@ -64,9 +64,9 @@ class _DeleteLieuDialogState extends State<_DeleteLieuDialog> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withAlpha((255 * 0.3).round())),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

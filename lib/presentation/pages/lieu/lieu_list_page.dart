@@ -7,7 +7,7 @@ import 'package:event_flow/presentation/widgets/widgets.dart';
 import 'package:event_flow/config/theme/app_color.dart';
 import 'package:event_flow/domains/injections/service_locator.dart' as getit;
 import 'package:event_flow/core/services/lieu_evenement_service.dart';
-import 'package:flutter/material.dart' hide ErrorWidget;
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LieuListPage extends StatefulWidget {
@@ -186,7 +186,7 @@ class _SecuredLieuCard extends StatelessWidget {
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
-                            // ✅ Badge "Moi" si propriétaire
+                            // Badge "Moi" si propriétaire
                             if (isOwner)
                               Container(
                                 margin: const EdgeInsets.only(left: 8),
@@ -195,7 +195,7 @@ class _SecuredLieuCard extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange.withOpacity(0.2),
+                                  color: AppColors.primaryOrange.withAlpha((255 * 0.2).round()),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
@@ -229,7 +229,7 @@ class _SecuredLieuCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withOpacity(0.1),
+                            color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -242,7 +242,7 @@ class _SecuredLieuCard extends StatelessWidget {
                     ),
                   ),
                   
-                  // ✅ Menu contextuel SEULEMENT pour le propriétaire
+                  // Menu contextuel SEULEMENT pour le propriétaire
                   if (isOwner)
                     PopupMenuButton(
                       icon: Icon(Icons.more_vert, color: AppColors.darkGrey),
@@ -367,9 +367,9 @@ void _showDeleteDialog(
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withAlpha((255 * 0.3).round())),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

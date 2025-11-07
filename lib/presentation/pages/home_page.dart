@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final pages = [
       const HomeContentPage(),
-      const MapPage(), // 🗺️ Nouvelle page carte
+      const MapPage(), 
       const LieuListPage(),
       const EvenementListPage(),
       const ProfilePage(),
@@ -203,7 +203,7 @@ class HomeContentPage extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               AppColors.primaryOrange,
-              AppColors.primaryOrange.withOpacity(0.7),
+              AppColors.primaryOrange.withAlpha((255 * 0.7).round()),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -250,7 +250,7 @@ class HomeContentPage extends StatelessWidget {
                       Text(
                         'Explorez les lieux et événements',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withAlpha((255 * 0.9).round()),
                         ),
                       ),
                     ],
@@ -281,7 +281,7 @@ class HomeContentPage extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   AppColors.primaryBlue,
-                  AppColors.primaryBlue.withOpacity(0.7),
+                  AppColors.primaryBlue.withAlpha((255 * 0.7).round()),
                 ],
               ),
             ),
@@ -290,7 +290,7 @@ class HomeContentPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withAlpha((255 * 0.2).round()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.map, color: Colors.white, size: 32),
@@ -311,7 +311,7 @@ class HomeContentPage extends StatelessWidget {
                       Text(
                         'Voir tous les lieux et événements autour de vous',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withAlpha((255 * 0.9).round()),
                         ),
                       ),
                     ],
@@ -371,14 +371,7 @@ class HomeContentPage extends StatelessWidget {
               );
             }
 
-            // 🐛 DEBUG: Afficher tous les lieux chargés
-            print('🏠 Home - Lieux chargés: ${lieuxNotifier.lieux.length}');
-            for (var lieu in lieuxNotifier.lieux.take(5)) {
-              print('  → ${lieu.nom}');
-              print(
-                '    Description: "${lieu.description}" (${lieu.description.length} car.)',
-              );
-            }
+            
 
             return SizedBox(
               height: 200, // Augmenté pour avoir plus d'espace
@@ -426,9 +419,7 @@ class HomeContentPage extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryGreen.withOpacity(
-                                    0.1,
-                                  ),
+                                  color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -548,7 +539,7 @@ class HomeContentPage extends StatelessWidget {
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withOpacity(0.2),
+                        color: AppColors.primaryBlue.withAlpha((255 * 0.2).round()),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(Icons.event, color: AppColors.primaryBlue),

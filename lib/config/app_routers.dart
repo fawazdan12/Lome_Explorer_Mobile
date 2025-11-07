@@ -121,7 +121,7 @@ class AppRoutes {
         }
         break;
 
-      // ✅ Événement Detail - CORRECTION ICI
+      // Événement Detail
       case evenementDetail:
         if (args is String) {
           return MaterialPageRoute(

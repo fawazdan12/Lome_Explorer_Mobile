@@ -29,7 +29,7 @@ class UserLocationNotifier extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // ✅ CORRECTION : Utiliser scheduleMicrotask pour éviter notifyListeners pendant build
+  // Utilisation de scheduleMicrotask pour éviter notifyListeners pendant build
   Future<void> detectLocation() async {
     _isLoading = true;
     _error = null;
@@ -142,10 +142,6 @@ class QuartiersNotifier extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== IS IN LOME NOTIFIER ====================
@@ -201,10 +197,6 @@ class IsInLomeNotifier extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== GEOCODE ADDRESS NOTIFIER ====================
@@ -425,8 +417,4 @@ class LocationServiceNotifier extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

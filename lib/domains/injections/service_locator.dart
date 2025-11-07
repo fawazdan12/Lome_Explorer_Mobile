@@ -22,7 +22,6 @@ import 'package:event_flow/core/services/websocket_service.dart';
 import 'package:event_flow/data/datasource/remote/websocket_datasource.dart';
 import 'package:event_flow/data/repositories/websocket_repository_impl.dart';
 import 'package:event_flow/domains/repositories/websocket_repository.dart';
-import 'package:event_flow/core/services/notification_trigger_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';

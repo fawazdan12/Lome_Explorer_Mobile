@@ -30,7 +30,7 @@ class _EvenementEditPageState extends State<EvenementEditPage> {
   @override
   void initState() {
     super.initState();
-    // ✅ Vérifier l'authentification et la propriété
+    // Vérifier l'authentification et la propriété
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOwnership();
     });
@@ -180,7 +180,7 @@ class _EvenementEditPageState extends State<EvenementEditPage> {
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
+                        color: Colors.orange.withAlpha((255 * 0.1).round()),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
@@ -233,7 +233,7 @@ class _EvenementEditPageState extends State<EvenementEditPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -352,7 +352,7 @@ class _EvenementEditPageState extends State<EvenementEditPage> {
   }
 
   void _handleSubmit() async {
-  // ✅ Double vérification avant soumission
+  // Double vérification avant soumission
   final canEdit = await context.canEditEvenement(widget.evenement);
   if (!canEdit) {
     if (mounted) {

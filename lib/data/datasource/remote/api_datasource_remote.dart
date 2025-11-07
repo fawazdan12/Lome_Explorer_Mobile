@@ -31,20 +31,20 @@ class RemoteDataSource {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // ✅ TOUJOURS vérifier SharedPreferences en priorité
+          // TOUJOURS vérifier SharedPreferences en priorité
           final tokenFromPrefs = _preferences.getString(LocalStorageKeys.token);
           final token = tokenFromPrefs ?? _token;
 
-          _logger.d('🔍 Token from _token: ${_token != null ? "YES" : "NO"}');
+          _logger.d('Token from _token: ${_token != null ? "YES" : "NO"}');
           _logger.d(
-            '🔍 Token from SharedPreferences: ${tokenFromPrefs != null ? "YES" : "NO"}',
+            'Token from SharedPreferences: ${tokenFromPrefs != null ? "YES" : "NO"}',
           );
 
           if (token != null && token.isNotEmpty) {
             options.headers[ApiConstants.authorization] = 'Token $token';
-            _logger.d('🔑 Token ajouté: ${token.substring(0, 20)}...');
+            _logger.d('Token ajouté: ${token.substring(0, 20)}...');
           } else {
-            _logger.w('⚠️ Aucun token disponible');
+            _logger.w('Aucun token disponible');
           }
 
           return handler.next(options);
@@ -54,14 +54,14 @@ class RemoteDataSource {
           return handler.next(response);
         },
         onError: (error, handler) {
-          _logger.e('⛔ Erreur HTTP: ${error.message}');
-          _logger.e('⛔ Status Code: ${error.response?.statusCode}');
-          _logger.e('⛔ Response Data: ${error.response?.data}');
-          _logger.e('⛔ Request Data: ${error.requestOptions.data}');
-          _logger.e('⛔ Request Headers: ${error.requestOptions.headers}');
+          _logger.e('Erreur HTTP: ${error.message}');
+          _logger.e('Status Code: ${error.response?.statusCode}');
+          _logger.e('Response Data: ${error.response?.data}');
+          _logger.e('Request Data: ${error.requestOptions.data}');
+          _logger.e('Request Headers: ${error.requestOptions.headers}');
           if (error.response?.statusCode == 401) {
             _logger.e(
-              '🔐 Token utilisé: ${_token != null ? "Oui (${_token!.substring(0, 20)}...)" : "Non"}',
+              'Token utilisé: ${_token != null ? "Oui (${_token!.substring(0, 20)}...)" : "Non"}',
             );
           }
           return handler.next(error);
@@ -73,23 +73,23 @@ class RemoteDataSource {
   void setToken(String token) {
     _token = token;
     _logger.i(
-      '🔑 Token défini dans RemoteDataSource: ${token.substring(0, 20)}...',
+      'Token défini dans RemoteDataSource: ${token.substring(0, 20)}...',
     );
   }
 
   void clearToken() {
     _token = null;
-    _logger.i('🧹 Token nettoyé dans RemoteDataSource');
+    _logger.i('Token nettoyé dans RemoteDataSource');
   }
 
-  // ✅ NOUVELLE MÉTHODE : Vérifier si le token est défini
+  // NOUVELLE MÉTHODE : Vérifier si le token est défini
   bool hasToken() {
     final hasInMemory = _token != null && _token!.isNotEmpty;
     final hasInPrefs = _preferences.getString(LocalStorageKeys.token) != null;
     return hasInMemory || hasInPrefs;
   }
 
-  // ✅ NOUVELLE MÉTHODE : Obtenir le token (pour debug uniquement)
+  // NOUVELLE MÉTHODE : Obtenir le token (pour debug uniquement)
   String? getToken() {
     return _token ?? _preferences.getString(LocalStorageKeys.token);
   }
@@ -132,22 +132,22 @@ class RemoteDataSource {
     required String password,
   }) async {
     try {
-      _logger.i('📤 Envoi requête login pour: $email');
+      _logger.i('Envoi requête login pour: $email');
       final response = await _dio.post(
         ApiConstants.authLogin,
         data: {'email': email, 'password': password},
       );
 
-      _logger.i('📥 Réponse login - Status: ${response.statusCode}');
-      _logger.i('📥 Réponse login - Data: ${response.data}');
+      _logger.i('Réponse login - Status: ${response.statusCode}');
+      _logger.i('Réponse login - Data: ${response.data}');
 
       if (response.statusCode == 200) {
-        // ✅ VÉRIFIER que le token est dans la réponse
+        // VÉRIFIER que le token est dans la réponse
         final data = response.data as Map<String, dynamic>;
 
         if (!data.containsKey('token')) {
-          _logger.e('❌ ERREUR : Pas de token dans la réponse !');
-          _logger.e('❌ Clés disponibles: ${data.keys.toList()}');
+          _logger.e('ERREUR : Pas de token dans la réponse !');
+          _logger.e('Clés disponibles: ${data.keys.toList()}');
           throw ApiException(
             message: 'Pas de token dans la réponse du serveur',
             statusCode: response.statusCode,
@@ -155,13 +155,13 @@ class RemoteDataSource {
         }
 
         final token = data['token'] as String;
-        _logger.i('✅ Token extrait: ${token.substring(0, 20)}...');
+        _logger.i('Token extrait: ${token.substring(0, 20)}...');
 
         final auth = AuthenticationModel.fromJson(response.data);
 
-        // ✅ IMPORTANT : Définir le token IMMÉDIATEMENT
+        //Définir le token IMMÉDIATEMENT
         setToken(auth.token);
-        _logger.i('✅ Token défini dans RemoteDataSource');
+        _logger.i('Token défini dans RemoteDataSource');
 
         return auth;
       }
@@ -171,7 +171,7 @@ class RemoteDataSource {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      _logger.e('❌ DioException lors du login: ${e.message}');
+      _logger.e('DioException lors du login: ${e.message}');
       throw _handleDioException(e);
     }
   }
@@ -404,7 +404,7 @@ class RemoteDataSource {
           'nom': nom,
           'description': description,
           'lieu': lieuId,
-          'date_debut': dateDebut.toIso8601String(), // ✅ Bon format
+          'date_debut': dateDebut.toIso8601String(),
           'date_fin': dateFin.toIso8601String(),
         },
       );
@@ -427,7 +427,7 @@ class RemoteDataSource {
     required String nom,
     required String description,
     required String lieuId,
-    required DateTime dateDebut, // ✅ Deux champs séparés
+    required DateTime dateDebut, 
     required DateTime dateFin,
   }) async {
     try {
@@ -437,7 +437,7 @@ class RemoteDataSource {
           'nom': nom,
           'description': description,
           'lieu': lieuId,
-          'date_debut': dateDebut.toIso8601String(), // ✅ Bon format
+          'date_debut': dateDebut.toIso8601String(),
           'date_fin': dateFin.toIso8601String(),
         },
       );
@@ -597,10 +597,10 @@ class RemoteDataSource {
     required String texte,
   }) async {
     try {
-      _logger.i('📝 Création avis lieu:');
-      _logger.i('   lieuId: $lieuId');
-      _logger.i('   note: $note');
-      _logger.i('   texte: ${texte.substring(0, min(50, texte.length))}...');
+      _logger.i('Création avis lieu:');
+      _logger.i('lieuId: $lieuId');
+      _logger.i('note: $note');
+      _logger.i('texte: ${texte.substring(0, min(50, texte.length))}...');
       final response = await _dio.post(
         ApiConstants.avisLieux,
         data: {'lieu': lieuId, 'note': note, 'texte': texte},
@@ -823,17 +823,17 @@ class RemoteDataSource {
     final statusCode = e.response?.statusCode;
     final data = e.response?.data;
 
-    // ✅ LOGGER DÉTAILLÉ
-    _logger.e('🔍 _handleBadResponse appelée');
-    _logger.e('   Status: $statusCode');
-    _logger.e('   Data type: ${data.runtimeType}');
-    _logger.e('   Data: $data');
+    // LOGGER DÉTAILLÉ
+    _logger.e('_handleBadResponse appelée');
+    _logger.e('Status: $statusCode');
+    _logger.e('Data type: ${data.runtimeType}');
+    _logger.e('Data: $data');
 
     String message = 'Erreur serveur';
     Map<String, dynamic>? errors;
 
     if (data is Map<String, dynamic>) {
-      _logger.e('   Data est un Map, clés: ${data.keys.toList()}');
+      _logger.e('Data est un Map, clés: ${data.keys.toList()}');
 
       // Extraire le message d'erreur
       if (data['error'] != null) {
@@ -861,11 +861,11 @@ class RemoteDataSource {
 
       errors = data;
     } else if (data is String) {
-      _logger.e('   Data est un String: $data');
+      _logger.e('Data est un String: $data');
       message = data;
     }
 
-    _logger.e('   Message final: $message');
+    _logger.e('Message final: $message');
 
     switch (statusCode) {
       case 400:

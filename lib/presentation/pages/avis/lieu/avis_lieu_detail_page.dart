@@ -123,7 +123,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                       gradient: LinearGradient(
                         colors: [
                           AppColors.primaryGreen,
-                          AppColors.primaryGreen.withOpacity(0.7),
+                          AppColors.primaryGreen.withAlpha((255 * 0.7).round()),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -159,7 +159,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withAlpha((255 * 0.2).round()),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -233,7 +233,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: AppColors.primaryOrange
-                                                .withOpacity(0.2),
+                                                .withAlpha((255 * 0.2).round()),
                                             borderRadius: BorderRadius.circular(
                                               12,
                                             ),
@@ -287,12 +287,12 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: _getRatingColor(avis.note).withOpacity(0.1),
+                            color: _getRatingColor(avis.note).withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _getRatingColor(
                                 avis.note,
-                              ).withOpacity(0.3),
+                              ).withAlpha((255 * 0.3).round()),
                             ),
                           ),
                           child: Column(
@@ -352,7 +352,7 @@ class _AvisLieuDetailPageState extends State<AvisLieuDetailPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
+                            color: Colors.blue.withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(

@@ -244,7 +244,7 @@ class _EvenementDetailPageState extends State<EvenementDetailPage> {
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withOpacity(0.2),
+                            color: AppColors.primaryGreen.withAlpha((255 * 0.2).round()),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -401,7 +401,7 @@ class _EvenementDetailPageState extends State<EvenementDetailPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [statusColor, statusColor.withOpacity(0.7)],
+          colors: [statusColor, statusColor.withAlpha((255 * 0.7).round())],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -479,7 +479,7 @@ class _EvenementDetailPageState extends State<EvenementDetailPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha((255 * 0.1).round()),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -653,7 +653,7 @@ void _showDeleteDialog(BuildContext context, EvenementEntity evenement) async {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(

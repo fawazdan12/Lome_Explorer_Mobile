@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
+
 // logger global
 final Logger _logger = Logger();
 
@@ -98,7 +99,7 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  color: AppColors.primaryBlue.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -210,7 +211,7 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -288,7 +289,7 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
           ),
           borderRadius: BorderRadius.circular(8),
           color: dateTime != null
-              ? iconColor.withOpacity(0.05)
+              ? iconColor.withAlpha((255 * 0.5).round())
               : Colors.grey.shade50,
         ),
         child: Row(
@@ -296,7 +297,7 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2),
+                color: iconColor.withAlpha((255 * 0.2).round()),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: iconColor),
@@ -345,7 +346,7 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primaryGreen.withOpacity(0.2),
+            color: AppColors.primaryGreen.withAlpha((255 * 0.2).round()),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(Icons.place, color: AppColors.primaryGreen),
@@ -608,12 +609,12 @@ class _EvenementCreatePageState extends State<EvenementCreatePage> {
     await Future.delayed(const Duration(seconds: 2));
     
     if (notifProvider.isConnected) {
-      _logger.i('✅ WebSocket maintenant connecté');
+      _logger.i('WebSocket maintenant connecté');
     } else {
-      _logger.e('❌ Échec de connexion WebSocket');
+      _logger.e('Échec de connexion WebSocket');
     }
   } else {
-    _logger.i('✅ WebSocket déjà connecté');
+    _logger.i('WebSocket déjà connecté');
   }
 }
 

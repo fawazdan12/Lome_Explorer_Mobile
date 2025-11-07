@@ -40,7 +40,7 @@ class AuthNotifier extends ChangeNotifier {
 
   Future<void> _initAuth() async {
     try {
-      // ✅ Utiliser la propriété synchrone du repository
+      
       _isAuthenticated = _repo.isAuthenticated;
       
       if (_isAuthenticated) {
@@ -102,7 +102,7 @@ class AuthNotifier extends ChangeNotifier {
           return false;
         },
         (authEntity) {
-          // ✅ Extraire l'utilisateur de AuthenticationEntity
+          // Extraire l'utilisateur de AuthenticationEntity
           _utilisateur = UtilisateurEntity(
             id: authEntity.utilisateur.id,
             username: authEntity.utilisateur.username,
@@ -140,7 +140,7 @@ class AuthNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _logger.i('🔐 Tentative de connexion pour: $email');
+      _logger.i('Tentative de connexion pour: $email');
       final result = await _repo.login(
         email: email,
         password: password,
@@ -155,7 +155,7 @@ class AuthNotifier extends ChangeNotifier {
           return false;
         },
         (authEntity) {
-          // ✅ Extraire l'utilisateur de AuthenticationEntity
+          // Extraire l'utilisateur de AuthenticationEntity
           _utilisateur = UtilisateurEntity(
             id: authEntity.utilisateur.id,
             username: authEntity.utilisateur.username,
@@ -170,20 +170,20 @@ class AuthNotifier extends ChangeNotifier {
           _error = null;
           _logger.i('Connexion réussie: ${_utilisateur!.username}');
 
-          _logger.i('🔑 Token reçu: ${authEntity.token.substring(0, 20)}...');
+          _logger.i('Token reçu: ${authEntity.token.substring(0, 20)}...');
         
-        // ✅ VÉRIFIER que le token est dans SharedPreferences
+        // VÉRIFIER que le token est dans SharedPreferences
         final prefs = GetIt.instance<SharedPreferences>();
         final savedToken = prefs.getString(LocalStorageKeys.token);
-        _logger.i('💾 Token dans SharedPreferences: ${savedToken != null ? savedToken.substring(0, 20) + "..." : "NULL"}');
+        _logger.i('Token dans SharedPreferences: ${savedToken != null ? "${savedToken.substring(0, 20)}..." : "NULL"}');
         
-        // ✅ VÉRIFIER que RemoteDataSource a le token (avec la nouvelle méthode)
+        // VÉRIFIER que RemoteDataSource a le token (avec la nouvelle méthode)
         final remoteDs = GetIt.instance<RemoteDataSource>();
         final hasToken = remoteDs.hasToken();
         final token = remoteDs.getToken();
-        _logger.i('📡 RemoteDataSource.hasToken(): $hasToken');
+        _logger.i('RemoteDataSource.hasToken(): $hasToken');
         if (token != null) {
-          _logger.i('📡 RemoteDataSource.getToken(): ${token.substring(0, 20)}...');
+          _logger.i('RemoteDataSource.getToken(): ${token.substring(0, 20)}...');
         }
           return true;
         },
@@ -200,7 +200,6 @@ class AuthNotifier extends ChangeNotifier {
 
   // ==================== DÉCONNEXION ====================
 
-  /// ✅ CORRECTION : Toujours considérer la déconnexion comme réussie
   Future<void> logout() async {
     _isLoading = true;
     _error = null;
@@ -209,14 +208,13 @@ class AuthNotifier extends ChangeNotifier {
     try {
       final result = await _repo.logout();
 
-      // ✅ Que l'API réussisse ou échoue, on nettoie l'état local
+      // Que l'API réussisse ou échoue, on nettoie l'état local
       _utilisateur = null;
       _isAuthenticated = false;
       _error = null;
       
       result.fold(
         (failure) {
-          // ⚠️ On log l'erreur mais on ne bloque pas la déconnexion
           _logger.w('Erreur déconnexion API (ignorée): ${failure.message}');
         },
         (_) {
@@ -224,7 +222,7 @@ class AuthNotifier extends ChangeNotifier {
         },
       );
     } catch (e) {
-      // ✅ Même en cas d'exception, on déconnecte l'utilisateur
+      // Même en cas d'exception, on déconnecte l'utilisateur
       _logger.w('Exception déconnexion (ignorée): $e');
       _utilisateur = null;
       _isAuthenticated = false;
@@ -273,7 +271,6 @@ class AuthNotifier extends ChangeNotifier {
 
   Future<void> checkAuthentication() async {
     try {
-      // ✅ Utiliser la propriété synchrone
       _isAuthenticated = _repo.isAuthenticated;
 
       if (_isAuthenticated) {
@@ -297,8 +294,4 @@ class AuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

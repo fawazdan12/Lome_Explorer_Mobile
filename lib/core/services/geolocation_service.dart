@@ -84,12 +84,12 @@ class GeolocationService {
         return null;
       }
 
-      // ✅ CORRECTION : Augmenter le timeout et améliorer la précision
+      // Augmentation de timeout et améliorer la précision
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium, // Moins exigeant
-        timeLimit: const Duration(seconds: 30), // Timeout augmenté
+        desiredAccuracy: LocationAccuracy.medium, 
+        timeLimit: const Duration(seconds: 30), 
       ).timeout(
-        const Duration(seconds: 35), // Timeout de secours
+        const Duration(seconds: 35), 
         onTimeout: () async{
           _logger.w('Timeout GPS - utilisation de lastKnownPosition');
           final lastPosition = await Geolocator.getLastKnownPosition();
@@ -104,7 +104,7 @@ class GeolocationService {
       return position;
     } catch (e) {
       _logger.e('Erreur lors de la récupération de la position GPS: $e');
-      // ✅ Essayer d'obtenir la dernière position connue
+      // Essayer d'obtenir la dernière position connue
       try {
         final lastPosition = await Geolocator.getLastKnownPosition();
         if (lastPosition != null) {
@@ -231,7 +231,7 @@ class GeolocationService {
     final locationSettings = LocationSettings(
       accuracy: accuracy,
       distanceFilter: distanceFilter,
-      // ✅ Suppression du timeLimit qui cause des timeouts
+      // Suppression du timeLimit qui cause des timeouts
     );
 
     return Geolocator.getPositionStream(

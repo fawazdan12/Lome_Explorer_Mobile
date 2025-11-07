@@ -97,10 +97,10 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primaryGreen.withOpacity(0.1),
+                color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                 border: Border(
                   bottom: BorderSide(
-                    color: AppColors.primaryGreen.withOpacity(0.3),
+                    color: AppColors.primaryGreen.withAlpha((255 * 0.3).round()),
                   ),
                 ),
               ),
@@ -149,7 +149,7 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
                           Container(
                             height: 40,
                             width: 1,
-                            color: AppColors.mediumGrey.withOpacity(0.3),
+                            color: AppColors.mediumGrey.withAlpha((255 * 0.1).round()),
                           ),
                           _buildStatItem(
                             icon: Icons.comment,
@@ -314,18 +314,22 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
     return sortedList;
   }
 
-  void _navigateToCreate() {
-    Navigator.push(
+  Future<void> _navigateToCreate() async {
+    // capture du notifier AVANT l'attente
+    final avisNotifier = context.read<AvisLieuNotifier>();
+
+    final created = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
         builder: (_) =>
             AvisLieuCreatePage(lieuId: widget.lieuId, lieuNom: widget.lieuNom),
       ),
-    ).then((created) {
-      if (created == true) {
-        context.read<AvisLieuNotifier>().refreshAvis();
-      }
-    });
+    );
+
+    if (!mounted) return;
+    if (created == true) {
+      await avisNotifier.refreshAvis();
+    }
   }
 
   void _navigateToDetail(String avisId) {
@@ -338,18 +342,26 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
     );
   }
 
-  void _navigateToEdit(dynamic avis) {
-    Navigator.push(
+  Future<void> _navigateToEdit(dynamic avis) async {
+    // capture du notifier AVANT l'attente
+    final avisNotifier = context.read<AvisLieuNotifier>();
+
+    final updated = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(builder: (_) => AvisLieuEditPage(avis: avis)),
-    ).then((updated) {
-      if (updated == true) {
-        context.read<AvisLieuNotifier>().refreshAvis();
-      }
-    });
+    );
+
+    if (!mounted) return;
+    if (updated == true) {
+      await avisNotifier.refreshAvis();
+    }
   }
 
-  void _handleDelete(dynamic avis) async {
+  Future<void> _handleDelete(dynamic avis) async {
+    // capture du notifier AVANT l'attente
+    final avisNotifier = context.read<AvisLieuNotifier>();
+
+    // on suppose que context.deleteAvisLieu affiche une confirmation et supprime
     final confirmed = await context.deleteAvisLieu(
       avisId: avis.id,
       lieuNom: widget.lieuNom,
@@ -358,8 +370,9 @@ class _AvisLieuListPageState extends State<AvisLieuListPage> {
       date: avis.date,
     );
 
-    if (confirmed && mounted) {
-      context.read<AvisLieuNotifier>().refreshAvis();
+    if (!mounted) return;
+    if (confirmed) {
+      await avisNotifier.refreshAvis();
     }
   }
 }
@@ -431,9 +444,7 @@ class AvisLieuCardWidget extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange.withOpacity(
-                                    0.2,
-                                  ),
+                                  color: AppColors.primaryOrange.withAlpha((255 * 0.2).round()),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(

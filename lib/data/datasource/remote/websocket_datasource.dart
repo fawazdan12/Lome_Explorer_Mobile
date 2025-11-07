@@ -46,14 +46,14 @@ class WebSocketDataSource {
     _updateConnectionState(WebSocketConnectionState.connecting);
     
     try {
-      _logger.i('🔌 Connexion WebSocket à $endpoint');
+      _logger.i('Connexion WebSocket à $endpoint');
       
       // Parser l'URL et s'assurer que le scheme est bien 'ws' ou 'wss'
       Uri wsUri = Uri.parse(endpoint);
       
       // Vérifier et forcer le scheme WebSocket
       if (wsUri.scheme != 'ws' && wsUri.scheme != 'wss') {
-        _logger.e('❌ Scheme invalide: ${wsUri.scheme}');
+        _logger.e('Scheme invalide: ${wsUri.scheme}');
         throw Exception('URL doit commencer par ws:// ou wss://');
       }
       
@@ -62,11 +62,11 @@ class WebSocketDataSource {
         wsUri = wsUri.replace(queryParameters: {'token': token});
       }
       
-      _logger.d('📍 URI finale: $wsUri');
-      _logger.d('📍 Scheme: ${wsUri.scheme}');
-      _logger.d('📍 Host: ${wsUri.host}');
-      _logger.d('📍 Port: ${wsUri.port}');
-      _logger.d('📍 Path: ${wsUri.path}');
+      _logger.d('URI finale: $wsUri');
+      _logger.d('Scheme: ${wsUri.scheme}');
+      _logger.d('Host: ${wsUri.host}');
+      _logger.d('Port: ${wsUri.port}');
+      _logger.d('Path: ${wsUri.path}');
       
       // Créer le WebSocketChannel avec l'URI correcte
       _channel = WebSocketChannel.connect(wsUri);
@@ -82,7 +82,7 @@ class WebSocketDataSource {
       _updateConnectionState(WebSocketConnectionState.connected);
       _reconnectAttempts = 0;
       
-      _logger.i('✅ WebSocket connecté avec succès');
+      _logger.i('WebSocket connecté avec succès');
       
       // Écouter les messages
       _listenToMessages();
@@ -91,18 +91,18 @@ class WebSocketDataSource {
       _startPingTimer();
       
     } on TimeoutException catch (e) {
-      _logger.e('⏱️ Timeout connexion WebSocket: $e');
+      _logger.e('Timeout connexion WebSocket: $e');
       _updateConnectionState(WebSocketConnectionState.error);
       _errorController.add('Timeout de connexion: ${e.message}');
       _scheduleReconnect();
     } on WebSocketChannelException catch (e) {
-      _logger.e('❌ Erreur WebSocketChannel: $e');
+      _logger.e('Erreur WebSocketChannel: $e');
       _updateConnectionState(WebSocketConnectionState.error);
       _errorController.add('Erreur WebSocket: ${e.message}');
       _scheduleReconnect();
     } catch (e, stackTrace) {
-      _logger.e('❌ Erreur connexion WebSocket: $e');
-      _logger.e('❌ Stack trace: $stackTrace');
+      _logger.e('Erreur connexion WebSocket: $e');
+      _logger.e('Stack trace: $stackTrace');
       _updateConnectionState(WebSocketConnectionState.error);
       _errorController.add('Erreur de connexion: $e');
       _scheduleReconnect();
@@ -111,15 +111,15 @@ class WebSocketDataSource {
 
   /// Écouter les messages du WebSocket
   void _listenToMessages() {
-    _subscription?.cancel(); // Annuler l'ancienne subscription
+    _subscription?.cancel();
     
     _subscription = _channel?.stream.listen(
       (dynamic message) {
         try {
-          _logger.d('📦 Message brut reçu: $message'); // ✅ LOG BRUT
+          _logger.d('Message brut reçu: $message'); 
           final data = jsonDecode(message as String) as Map<String, dynamic>;
-          _logger.d('📩 Message WebSocket reçu: ${data['type']}');
-          _logger.d('📩 Contenu complet: $data'); // ✅ LOG COMPLET
+          _logger.d('Message WebSocket reçu: ${data['type']}');
+          _logger.d('Contenu complet: $data'); 
           _messageController.add(data);
           
           // Répondre aux pings
@@ -127,18 +127,18 @@ class WebSocketDataSource {
             sendMessage({'type': WebSocketConfig.pongMessage});
           }
         } catch (e) {
-          _logger.e('❌ Erreur parsing message WebSocket: $e');
+          _logger.e('Erreur parsing message WebSocket: $e');
           _errorController.add('Erreur de parsing: $e');
         }
       },
       onError: (error) {
-        _logger.e('❌ Erreur WebSocket stream: $error');
+        _logger.e('Erreur WebSocket stream: $error');
         _updateConnectionState(WebSocketConnectionState.error);
         _errorController.add('Erreur de stream: $error');
         _scheduleReconnect();
       },
       onDone: () {
-        _logger.w('⚠️ WebSocket fermé par le serveur');
+        _logger.w('WebSocket fermé par le serveur');
         _updateConnectionState(WebSocketConnectionState.disconnected);
         _scheduleReconnect();
       },
@@ -152,7 +152,7 @@ class WebSocketDataSource {
     _pingTimer = Timer.periodic(WebSocketConfig.pingInterval, (_) {
       if (isConnected) {
         sendMessage({'type': WebSocketConfig.pingMessage});
-        _logger.d('📤 Ping envoyé');
+        _logger.d('Ping envoyé');
       }
     });
   }
@@ -161,7 +161,7 @@ class WebSocketDataSource {
 
   /// Se déconnecter du WebSocket
   Future<void> disconnect() async {
-    _logger.i('🔌 Déconnexion WebSocket');
+    _logger.i('Déconnexion WebSocket');
     
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
@@ -176,7 +176,7 @@ class WebSocketDataSource {
     _currentEndpoint = null;
     _reconnectAttempts = 0;
     
-    _logger.i('✅ WebSocket déconnecté');
+    _logger.i('WebSocket déconnecté');
   }
 
   // ==================== RECONNEXION ====================
@@ -184,7 +184,7 @@ class WebSocketDataSource {
   /// Planifier une tentative de reconnexion
   void _scheduleReconnect() {
     if (_reconnectAttempts >= WebSocketConfig.maxReconnectAttempts) {
-      _logger.e('❌ Nombre maximum de tentatives de reconnexion atteint');
+      _logger.e('Nombre maximum de tentatives de reconnexion atteint');
       _updateConnectionState(WebSocketConnectionState.error);
       _errorController.add('Impossible de se reconnecter après ${WebSocketConfig.maxReconnectAttempts} tentatives');
       return;
@@ -193,7 +193,7 @@ class WebSocketDataSource {
     _reconnectAttempts++;
     final delay = WebSocketConfig.reconnectDelay(_reconnectAttempts);
     
-    _logger.w('🔄 Tentative de reconnexion $_reconnectAttempts/${WebSocketConfig.maxReconnectAttempts} dans ${delay.inSeconds}s');
+    _logger.w('Tentative de reconnexion $_reconnectAttempts/${WebSocketConfig.maxReconnectAttempts} dans ${delay.inSeconds}s');
     _updateConnectionState(WebSocketConnectionState.reconnecting);
     
     _reconnectTimer?.cancel();
@@ -206,14 +206,14 @@ class WebSocketDataSource {
 
   /// Forcer une reconnexion immédiate
   Future<void> reconnect() async {
-    _logger.i('🔄 Reconnexion manuelle');
+    _logger.i('Reconnexion manuelle');
     _reconnectAttempts = 0;
     
     if (_currentEndpoint != null) {
       await disconnect();
       await connect(_currentEndpoint!);
     } else {
-      _logger.w('⚠️ Aucun endpoint enregistré pour la reconnexion');
+      _logger.w('Aucun endpoint enregistré pour la reconnexion');
     }
   }
 
@@ -222,16 +222,16 @@ class WebSocketDataSource {
   /// Envoyer un message au serveur WebSocket
   void sendMessage(Map<String, dynamic> message) {
     if (!isConnected) {
-      _logger.w('⚠️ Tentative d\'envoi de message alors que WebSocket n\'est pas connecté');
+      _logger.w('Tentative d\'envoi de message alors que WebSocket n\'est pas connecté');
       return;
     }
 
     try {
       final jsonMessage = jsonEncode(message);
       _channel?.sink.add(jsonMessage);
-      _logger.d('📤 Message envoyé: ${message['type']}');
+      _logger.d('Message envoyé: ${message['type']}');
     } catch (e) {
-      _logger.e('❌ Erreur envoi message WebSocket: $e');
+      _logger.e('Erreur envoi message WebSocket: $e');
       _errorController.add('Erreur d\'envoi: $e');
     }
   }
@@ -250,7 +250,7 @@ class WebSocketDataSource {
       'longitude': longitude,
       'radius': radius,
     });
-    _logger.i('📍 Abonnement localisation: ($latitude, $longitude) - ${radius}km');
+    _logger.i('Abonnement localisation: ($latitude, $longitude) - ${radius}km');
   }
 
   /// S'abonner aux événements de catégories spécifiques
@@ -259,7 +259,7 @@ class WebSocketDataSource {
       'type': WebSocketConfig.subscribeCategory,
       'categories': categories,
     });
-    _logger.i('🏷️ Abonnement catégories: ${categories.join(', ')}');
+    _logger.i('Abonnement catégories: ${categories.join(', ')}');
   }
 
   // ==================== HELPERS PRIVÉS ====================
@@ -269,7 +269,7 @@ class WebSocketDataSource {
     if (_connectionState != state) {
       _connectionState = state;
       _connectionStateController.add(state);
-      _logger.d('🔄 État WebSocket: ${state.description}');
+      _logger.d('État WebSocket: ${state.description}');
     }
   }
 
@@ -277,7 +277,7 @@ class WebSocketDataSource {
 
   /// Nettoyer les ressources
   Future<void> dispose() async {
-    _logger.i('🧹 Nettoyage WebSocketDataSource');
+    _logger.i('Nettoyage WebSocketDataSource');
     
     await disconnect();
     
@@ -285,6 +285,6 @@ class WebSocketDataSource {
     await _messageController.close();
     await _errorController.close();
     
-    _logger.i('✅ WebSocketDataSource nettoyé');
+    _logger.i('WebSocketDataSource nettoyé');
   }
 }

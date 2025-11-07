@@ -59,7 +59,7 @@ class NotificationProvider extends ChangeNotifier {
     // Écouter l'état de connexion
     _connectionStateSubscription = _service.connectionStateStream.listen((state) {
       _connectionState = state;
-      _logger.d('🔄 État connexion: ${state.description}');
+      _logger.d('État connexion: ${state.description}');
       notifyListeners();
     });
 
@@ -71,7 +71,7 @@ class NotificationProvider extends ChangeNotifier {
     // Écouter les erreurs
     _errorSubscription = _service.errors.listen((error) {
       _lastError = error;
-      _logger.e('❌ Erreur WebSocket: $error');
+      _logger.e('Erreur WebSocket: $error');
       notifyListeners();
     });
   }
@@ -85,7 +85,7 @@ class NotificationProvider extends ChangeNotifier {
       _notifications.removeRange(100, _notifications.length);
     }
 
-    _logger.i('📬 Nouvelle notification: ${notification.type}');
+    _logger.i('Nouvelle notification: ${notification.type}');
     notifyListeners();
   }
 
@@ -179,7 +179,7 @@ class NotificationProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _logger.i('🧹 Nettoyage NotificationProvider');
+    _logger.i('Nettoyage NotificationProvider');
 
     _connectionStateSubscription?.cancel();
     _notificationSubscription?.cancel();

@@ -53,10 +53,10 @@ class _AvisLieuEditPageState extends State<AvisLieuEditPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGreen.withOpacity(0.1),
+                  color: AppColors.primaryGreen.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.primaryGreen.withOpacity(0.3),
+                    color: AppColors.primaryGreen.withAlpha((255 * 0.3).round()),
                   ),
                 ),
                 child: Column(
@@ -67,7 +67,7 @@ class _AvisLieuEditPageState extends State<AvisLieuEditPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withOpacity(0.2),
+                            color: AppColors.primaryGreen.withAlpha((255 * 0.2).round()),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -165,7 +165,7 @@ class _AvisLieuEditPageState extends State<AvisLieuEditPage> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: _getRatingColor().withOpacity(0.1),
+                      color: _getRatingColor().withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -233,7 +233,7 @@ class _AvisLieuEditPageState extends State<AvisLieuEditPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -307,10 +307,10 @@ class _AvisLieuEditPageState extends State<AvisLieuEditPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.1),
+                            color: AppColors.error.withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppColors.error.withOpacity(0.3),
+                              color: AppColors.error.withAlpha((255 * 0.3).round()),
                             ),
                           ),
                           child: Row(

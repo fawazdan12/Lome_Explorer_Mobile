@@ -53,10 +53,10 @@ class _AvisEvenementEditPageState extends State<AvisEvenementEditPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  color: AppColors.primaryBlue.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.primaryBlue.withOpacity(0.3),
+                    color: AppColors.primaryBlue.withAlpha((255 * 0.3).round()),
                   ),
                 ),
                 child: Column(
@@ -205,10 +205,10 @@ class _AvisEvenementEditPageState extends State<AvisEvenementEditPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.1),
+                            color: AppColors.error.withAlpha((255 * 0.1).round()),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppColors.error.withOpacity(0.3),
+                              color: AppColors.error.withAlpha((255 * 0.3).round()),
                             ),
                           ),
                           child: Row(

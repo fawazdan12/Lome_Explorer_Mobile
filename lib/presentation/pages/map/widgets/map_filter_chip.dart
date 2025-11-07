@@ -21,7 +21,7 @@ class MapFilterChips extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha((255 * 0.1).round()),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -118,7 +118,7 @@ class MapFilterChips extends StatelessWidget {
       selectedColor: chipColor,
       checkmarkColor: Colors.white,
       side: BorderSide(
-        color: isSelected ? chipColor : chipColor.withOpacity(0.5),
+        color: isSelected ? chipColor : chipColor.withAlpha((255 * 0.5).round()),
         width: 1.5,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

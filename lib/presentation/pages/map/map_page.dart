@@ -14,6 +14,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:logger/logger.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -23,6 +24,8 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  final Logger _logger = Logger();
+  
   GoogleMapController? _mapController;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
@@ -34,6 +37,9 @@ class _MapPageState extends State<MapPage> {
   Set<MapItemType> _selectedFilters = {};
   bool _isFollowingUser = true;
   StreamSubscription<Position>? _positionSubscription;
+  
+  bool _isMapReady = false;
+  bool _isInitializing = false;
 
   // Lomé par défaut
   static const LatLng _lomeCenter = LatLng(6.1319, 1.2228);
@@ -41,8 +47,9 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    _logger.i('MapPage initState');
     
-    // ✅ CORRECTION : Utiliser addPostFrameCallback pour éviter setState pendant build
+    // Initialiser après le premier frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeMap();
     });
@@ -50,28 +57,66 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void dispose() {
+    _logger.i('MapPage dispose');
     _positionSubscription?.cancel();
     _mapController?.dispose();
     super.dispose();
   }
 
   Future<void> _initializeMap() async {
-    // Détecter la position utilisateur
-    await _detectUserPosition();
+    if (_isInitializing) {
+      _logger.w('Initialisation déjà en cours');
+      return;
+    }
 
-    // Charger les lieux et événements
-    if (mounted) {
-      context.read<LieuxNotifier>().fetchLieux();
-      context.read<EvenementsNotifier>().fetchEvenements();
+    _isInitializing = true;
+    _logger.i('Début initialisation carte');
+
+    try {
+      // Utiliser mounted pour éviter les erreurs
+      if (!mounted) return;
+
+      // Détecter la position utilisateur
+      await _detectUserPosition();
+
+      // Charger les lieux et événements
+      if (mounted) {
+        final lieuxNotifier = context.read<LieuxNotifier>();
+        final evenementsNotifier = context.read<EvenementsNotifier>();
+        
+        _logger.i('Chargement des lieux et événements');
+        await Future.wait([
+          lieuxNotifier.fetchLieux(),
+          evenementsNotifier.fetchEvenements(),
+        ]);
+        
+        _logger.i('Données chargées');
+      }
+    } catch (e) {
+      _logger.e('Erreur initialisation carte: $e');
+      if (mounted) {
+        SnackBarHelper.showError(
+          context,
+          'Erreur lors du chargement de la carte',
+        );
+      }
+    } finally {
+      _isInitializing = false;
     }
   }
 
   Future<void> _detectUserPosition() async {
     try {
+      _logger.i('Détection position utilisateur');
+      
+      if (!mounted) return;
+      
       final locationNotifier = context.read<UserLocationNotifier>();
       await locationNotifier.detectLocation();
 
       if (locationNotifier.location != null && mounted) {
+        _logger.i('Position détectée: ${locationNotifier.location!.latitude}, ${locationNotifier.location!.longitude}');
+        
         setState(() {
           _userPosition = LatLng(
             locationNotifier.location!.latitude,
@@ -80,12 +125,17 @@ class _MapPageState extends State<MapPage> {
         });
 
         // Centrer la carte sur l'utilisateur
-        _centerMapOnUser();
+        if (_isMapReady) {
+          _centerMapOnUser();
+        }
 
         // Commencer à suivre la position
         _startPositionTracking();
+      } else {
+        _logger.w('Aucune position détectée');
       }
     } catch (e) {
+      _logger.e('Erreur détection position: $e');
       if (mounted) {
         SnackBarHelper.showError(
           context,
@@ -96,28 +146,27 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _startPositionTracking() {
-    final positionWatcher = context.read<PositionWatcherNotifier>();
-
-    positionWatcher.startWatching(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 10,
-    );
-
-    // Écouter les changements de position
-    _positionSubscription =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
-          ),
-        ).listen((Position position) {
+    try {
+      _logger.i('Début suivi position');
+      
+      // Annuler le précédent abonnement
+      _positionSubscription?.cancel();
+      
+      // Écouter les changements de position
+      _positionSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).listen(
+        (Position position) {
           if (mounted) {
             setState(() {
               _userPosition = LatLng(position.latitude, position.longitude);
             });
 
             // Si on suit l'utilisateur, centrer la carte
-            if (_isFollowingUser) {
+            if (_isFollowingUser && _isMapReady) {
               _centerMapOnUser(animate: true);
             }
 
@@ -126,11 +175,20 @@ class _MapPageState extends State<MapPage> {
               _updateNavigationRoute();
             }
           }
-        });
+        },
+        onError: (error) {
+          _logger.e('Erreur suivi position: $error');
+        },
+      );
+    } catch (e) {
+      _logger.e('Erreur démarrage suivi: $e');
+    }
   }
 
   void _centerMapOnUser({bool animate = false}) {
-    if (_userPosition != null && _mapController != null) {
+    if (_userPosition != null && _mapController != null && _isMapReady) {
+      _logger.d('Centrage sur utilisateur');
+      
       final cameraUpdate = CameraUpdate.newCameraPosition(
         CameraPosition(
           target: _userPosition!,
@@ -149,10 +207,12 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.d('Build MapPage');
+    
     return Scaffold(
       body: Stack(
         children: [
-          // Carte Google Maps
+          // Carte Google Maps avec gestion d'erreur
           _buildMap(),
 
           // Filtres en haut
@@ -252,6 +312,15 @@ class _MapPageState extends State<MapPage> {
                 onStartNavigation: _openGoogleMapsNavigation,
               ),
             ),
+
+          // Indicateur de chargement initial
+          if (_isInitializing)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
         ],
       ),
     );
@@ -264,8 +333,21 @@ class _MapPageState extends State<MapPage> {
         zoom: 14,
       ),
       onMapCreated: (controller) {
+        _logger.i('🗺️ Carte créée');
         _mapController = controller;
+        
+        // Marquer la carte comme prête
+        setState(() {
+          _isMapReady = true;
+        });
+        
+        // Mettre à jour les markers
         _updateMarkers();
+        
+        // Centrer sur l'utilisateur si disponible
+        if (_userPosition != null) {
+          _centerMapOnUser();
+        }
       },
       markers: _markers,
       polylines: _polylines,
@@ -293,63 +375,50 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _updateMarkers() async {
-    final markers = <Marker>{};
+    if (!_isMapReady || !mounted) return;
+    
+    _logger.d('Mise à jour des markers');
+    
+    try {
+      final markers = <Marker>{};
 
-    // Marker position utilisateur
-    if (_userPosition != null) {
-      final userIcon = await CustomMarkerHelper.createMarkerIcon(
-        type: MapItemType.userPosition,
-        context: context,
-      );
-
-      markers.add(
-        Marker(
-          markerId: const MarkerId('user_position'),
-          position: _userPosition!,
-          icon: userIcon,
-          anchor: const Offset(0.5, 0.5),
-          zIndex: 999,
-        ),
-      );
-    }
-
-    // Markers des lieux
-    if (_selectedFilters.isEmpty ||
-        _selectedFilters.contains(MapItemType.lieu)) {
-      final lieuxNotifier = context.read<LieuxNotifier>();
-      for (final lieu in lieuxNotifier.lieux) {
-        final mapItem = MapItem.fromLieu(lieu);
-        final icon = await CustomMarkerHelper.createMarkerIcon(
-          type: MapItemType.lieu,
+      // Marker position utilisateur
+      if (_userPosition != null) {
+        final userIcon = await CustomMarkerHelper.createMarkerIcon(
+          type: MapItemType.userPosition,
           context: context,
         );
 
+        if (!mounted) return;
+        
         markers.add(
           Marker(
-            markerId: MarkerId('lieu_${lieu.id}'),
-            position: mapItem.position,
-            icon: icon,
-            onTap: () => _onMarkerTapped(mapItem),
+            markerId: const MarkerId('user_position'),
+            position: _userPosition!,
+            icon: userIcon,
+            anchor: const Offset(0.5, 0.5),
+            zIndexInt: 999,
           ),
         );
       }
-    }
 
-    // Markers des événements
-    if (_selectedFilters.isEmpty ||
-        _selectedFilters.contains(MapItemType.evenement)) {
-      final evenementsNotifier = context.read<EvenementsNotifier>();
-      for (final evenement in evenementsNotifier.evenements) {
-        if (evenement.lieuLatitude != null && evenement.lieuLongitude != null) {
-          final mapItem = MapItem.fromEvenement(evenement);
+      // Markers des lieux
+      if (_selectedFilters.isEmpty ||
+          _selectedFilters.contains(MapItemType.lieu)) {
+        final lieuxNotifier = context.read<LieuxNotifier>();
+        
+        for (final lieu in lieuxNotifier.lieux) {
+          final mapItem = MapItem.fromLieu(lieu);
           final icon = await CustomMarkerHelper.createMarkerIcon(
-            type: MapItemType.evenement,
+            type: MapItemType.lieu,
             context: context,
           );
 
+          if (!mounted) return;
+          
           markers.add(
             Marker(
-              markerId: MarkerId('evenement_${evenement.id}'),
+              markerId: MarkerId('lieu_${lieu.id}'),
               position: mapItem.position,
               icon: icon,
               onTap: () => _onMarkerTapped(mapItem),
@@ -357,16 +426,49 @@ class _MapPageState extends State<MapPage> {
           );
         }
       }
-    }
 
-    if (mounted) {
-      setState(() {
-        _markers = markers;
-      });
+      // Markers des événements
+      if (_selectedFilters.isEmpty ||
+          _selectedFilters.contains(MapItemType.evenement)) {
+        final evenementsNotifier = context.read<EvenementsNotifier>();
+        
+        for (final evenement in evenementsNotifier.evenements) {
+          if (evenement.lieuLatitude != null && 
+              evenement.lieuLongitude != null) {
+            final mapItem = MapItem.fromEvenement(evenement);
+            final icon = await CustomMarkerHelper.createMarkerIcon(
+              type: MapItemType.evenement,
+              context: context,
+            );
+
+            if (!mounted) return;
+            
+            markers.add(
+              Marker(
+                markerId: MarkerId('evenement_${evenement.id}'),
+                position: mapItem.position,
+                icon: icon,
+                onTap: () => _onMarkerTapped(mapItem),
+              ),
+            );
+          }
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _markers = markers;
+        });
+        _logger.i('${markers.length} markers ajoutés');
+      }
+    } catch (e) {
+      _logger.e('Erreur mise à jour markers: $e');
     }
   }
 
   void _onMarkerTapped(MapItem item) {
+    _logger.i('Marker tappé: ${item.nom}');
+    
     setState(() {
       _selectedItem = item;
     });
@@ -461,7 +563,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _fitBounds(List<LatLng> positions) {
-    if (_mapController == null || positions.isEmpty) return;
+    if (_mapController == null || positions.isEmpty || !_isMapReady) return;
 
     double minLat = positions[0].latitude;
     double maxLat = positions[0].latitude;
@@ -517,6 +619,7 @@ class _MapPageState extends State<MapPage> {
         }
       }
     } catch (e) {
+      _logger.e('Erreur ouverture Google Maps: $e');
       if (mounted) {
         SnackBarHelper.showError(context, 'Impossible d\'ouvrir Google Maps');
       }

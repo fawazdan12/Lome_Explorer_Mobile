@@ -172,7 +172,7 @@ class WebSocketRepositoryImpl implements WebSocketRepository {
     try {
       final type = message['type'] as String?;
 
-      _logger.d('🔍 Traitement message type: $type'); // ✅ LOG TYPE
+      _logger.d('Traitement message type: $type'); 
 
       // Ignorer les messages système (pong, connection_established, etc.)
       if (type == 'pong' ||
@@ -185,28 +185,28 @@ class WebSocketRepositoryImpl implements WebSocketRepository {
       final notification = WebSocketEntityFactory.fromJson(message);
 
       if (notification != null) {
-        _logger.i('✅ Notification parsée: $type'); // ✅ LOG PARSING
+        _logger.i('Notification parsée: $type'); 
         // Ajouter à tous les streams
         _notificationController.add(notification);
 
         // Dispatcher vers les streams spécifiques
         if (WebSocketConfig.isEventNotification(type!)) {
-          _logger.i('📅 Notification d\'événement détectée');
+          _logger.i('Notification d\'événement détectée');
           _eventNotificationController.add(notification);
         } else if (WebSocketConfig.isPlaceNotification(type)) {
-          _logger.i('📍 Notification de lieu détectée');
+          _logger.i('Notification de lieu détectée');
           _placeNotificationController.add(notification);
         } else if (WebSocketConfig.isPersonalNotification(type)) {
-          _logger.i('👤 Notification personnelle détectée');
+          _logger.i('Notification personnelle détectée');
           _personalNotificationController.add(notification);
         }
 
-        _logger.d('📬 Notification traitée: $type');
+        _logger.d('Notification traitée: $type');
       } else {
-        _logger.w('⚠️ Type de notification inconnu: $type');
+        _logger.w('Type de notification inconnu: $type');
       }
     } catch (e) {
-      _logger.e('❌ Erreur traitement message: $e');
+      _logger.e('Erreur traitement message: $e');
     }
   }
 
@@ -214,7 +214,7 @@ class WebSocketRepositoryImpl implements WebSocketRepository {
 
   @override
   Future<void> dispose() async {
-    _logger.i('🧹 Nettoyage WebSocketRepository');
+    _logger.i('Nettoyage WebSocketRepository');
 
     await _messageSubscription?.cancel();
 
@@ -225,7 +225,7 @@ class WebSocketRepositoryImpl implements WebSocketRepository {
 
     await _dataSource.dispose();
 
-    _logger.i('✅ WebSocketRepository nettoyé');
+    _logger.i('WebSocketRepository nettoyé');
   }
 
   // ==================== HELPERS ====================

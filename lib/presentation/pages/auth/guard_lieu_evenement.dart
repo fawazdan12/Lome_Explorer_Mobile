@@ -8,9 +8,9 @@ import 'package:provider/provider.dart';
 
 final _logger = Logger();
 
-/// 🔒 Classe utilitaire pour vérifier la propriété des ressources
+/// Classe utilitaire pour vérifier la propriété des ressources
 class OwnershipGuard {
-  /// ✅ Normaliser les UUIDs pour la comparaison
+  /// Normaliser les UUIDs pour la comparaison
   static String _normalizeUuid(String? uuid) {
     if (uuid == null || uuid.isEmpty) return '';
     return uuid.trim().toLowerCase().replaceAll('-', '');
@@ -20,43 +20,33 @@ class OwnershipGuard {
   static bool isLieuOwner(BuildContext context, LieuEntity lieu) {
     final authNotifier = context.read<AuthNotifier>();
 
-    _logger.d('🔍 Vérification propriété LIEU:');
-    _logger.d('  └─ Lieu: "${lieu.nom}" (ID: ${lieu.id})');
-    _logger.d('  └─ Propriétaire lieu BRUT: "${lieu.proprietaireId}"');
-    _logger.d(
-      '  └─ Utilisateur connecté: ${authNotifier.isAuthenticated ? "OUI" : "NON"}',
-    );
-
     if (!authNotifier.isAuthenticated) {
-      _logger.w('  └─ ❌ NON authentifié');
+      _logger.w('NON authentifié');
       return false;
     }
 
     if (authNotifier.currentUser == null) {
-      _logger.w('  └─ ❌ currentUser est NULL');
+      _logger.w('currentUser est NULL');
       return false;
     }
 
     final currentUserId = _normalizeUuid(authNotifier.currentUser?.id);
     final proprietaireId = _normalizeUuid(lieu.proprietaireId);
 
-    _logger.d('  └─ ID utilisateur (normalisé): "$currentUserId"');
-    _logger.d('  └─ ID propriétaire (normalisé): "$proprietaireId"');
-
     if (currentUserId.isEmpty) {
-      _logger.w('  └─ ❌ ID utilisateur vide');
+      _logger.w('ID utilisateur vide');
       return false;
     }
 
     if (proprietaireId.isEmpty) {
-      _logger.w('  └─ ❌ ID propriétaire vide');
+      _logger.w('ID propriétaire vide');
       return false;
     }
 
     final isOwner = currentUserId == proprietaireId;
     
     _logger.d(
-      '  └─ ${isOwner ? "✅ EST propriétaire" : "❌ N\'EST PAS propriétaire"}',
+      ' ${isOwner ? "EST propriétaire" : "N'EST PAS propriétaire"}',
     );
 
     return isOwner;
@@ -69,69 +59,56 @@ class OwnershipGuard {
   ) {
     final authNotifier = context.read<AuthNotifier>();
 
-    _logger.d('🔍 Vérification propriété ÉVÉNEMENT:');
-    _logger.d('  └─ Événement: "${evenement.nom}" (ID: ${evenement.id})');
-    _logger.d('  └─ Organisateur événement BRUT: "${evenement.organisateurId}"');
-    _logger.d(
-      '  └─ Utilisateur connecté: ${authNotifier.isAuthenticated ? "OUI" : "NON"}',
-    );
-
     if (!authNotifier.isAuthenticated) {
-      _logger.w('  └─ ❌ NON authentifié');
+      _logger.w('NON authentifié');
       return false;
     }
 
     if (authNotifier.currentUser == null) {
-      _logger.w('  └─ ❌ currentUser est NULL');
+      _logger.w('currentUser est NULL');
       return false;
     }
 
     final currentUserId = _normalizeUuid(authNotifier.currentUser?.id);
     final organisateurId = _normalizeUuid(evenement.organisateurId);
 
-    _logger.d('  └─ ID utilisateur (normalisé): "$currentUserId"');
-    _logger.d('  └─ ID organisateur (normalisé): "$organisateurId"');
+    _logger.d('ID utilisateur (normalisé): "$currentUserId"');
+    _logger.d('ID organisateur (normalisé): "$organisateurId"');
 
     if (currentUserId.isEmpty) {
-      _logger.w('  └─ ❌ ID utilisateur vide');
+      _logger.w('ID utilisateur vide');
       return false;
     }
 
     if (organisateurId.isEmpty) {
-      _logger.w('  └─ ❌ ID organisateur vide');
+      _logger.w('ID organisateur vide');
       return false;
     }
 
     final isOwner = currentUserId == organisateurId;
     
     _logger.d(
-      '  └─ ${isOwner ? "✅ EST organisateur" : "❌ N\'EST PAS organisateur"}',
+      '  └─ ${isOwner ? "EST organisateur" : "N'EST PAS organisateur"}',
     );
 
     return isOwner;
   }
 
-  /// ✅ NOUVEAU : Vérifier si un événement est terminé
+  /// Vérifier si un événement est terminé
   static bool isEvenementTermine(EvenementEntity evenement) {
     final now = DateTime.now();
     final isTermine = evenement.dateFin.isBefore(now);
-    
-    _logger.d('📅 Vérification date événement:');
-    _logger.d('  └─ Date fin: ${evenement.dateFin}');
-    _logger.d('  └─ Maintenant: $now');
-    _logger.d('  └─ ${isTermine ? "✅ Terminé" : "❌ Non terminé"}');
-    
     return isTermine;
   }
 
-  /// ✅ NOUVEAU : Vérifier si un événement peut être modifié
+  /// Vérifier si un événement peut être modifié
   static bool canEditEvenement(BuildContext context, EvenementEntity evenement) {
-    // 1. Vérifier la propriété
+    // Vérifier la propriété
     if (!isEvenementOwner(context, evenement)) {
       return false;
     }
 
-    // 2. Vérifier si l'événement n'est pas terminé
+    // Vérifier si l'événement n'est pas terminé
     if (isEvenementTermine(evenement)) {
       _logger.w('❌ Événement terminé - modification interdite');
       return false;
@@ -161,7 +138,7 @@ class OwnershipGuard {
             Icon(
               Icons.block,
               size: 64,
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.error.withAlpha((255 * 0.5).round()),
             ),
             const SizedBox(height: 16),
             Text(
@@ -189,7 +166,7 @@ class OwnershipGuard {
     );
   }
 
-  /// ✅ NOUVEAU : Dialogue pour événement terminé
+  /// Dialogue pour événement terminé
   static Future<void> showEvenementTermineDialog(
     BuildContext context,
     EvenementEntity evenement,
@@ -210,7 +187,7 @@ class OwnershipGuard {
             Icon(
               Icons.history,
               size: 64,
-              color: AppColors.mediumGrey.withOpacity(0.5),
+              color: AppColors.mediumGrey.withAlpha((255 * 0.5).round()),
             ),
             const SizedBox(height: 16),
             Text(
@@ -230,7 +207,7 @@ class OwnershipGuard {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.1),
+                color: AppColors.info.withAlpha((255 * 0.1).round()),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -265,27 +242,32 @@ class OwnershipGuard {
     LieuEntity? lieu,
     EvenementEntity? evenement,
   }) async {
-    final authNotifier = context.read<AuthNotifier>();
+    final ctx = context;
+    final authNotifier = ctx.read<AuthNotifier>();
 
-    _logger.i('🔍 Vérification action: $action');
+    _logger.i('Vérification action: $action');
 
     // 1. Vérifier l'authentification
     if (!authNotifier.isAuthenticated) {
-      _logger.w('❌ Non authentifié - demande de connexion');
+      _logger.w('Non authentifié - demande de connexion');
       final shouldLogin = await _showAuthRequiredDialog(
-        context,
+        ctx,
         action: action,
         resourceType: lieu != null ? 'lieu' : 'événement',
       );
 
-      if (shouldLogin && context.mounted) {
+      if (!ctx.mounted) return false;
+
+      if (shouldLogin) {
         await Navigator.pushNamed(context, '/login');
+        if (!ctx.mounted) return false;
+
         if (!authNotifier.isAuthenticated) {
-          _logger.w('❌ Toujours non authentifié après login');
+          _logger.w('Toujours non authentifié après login');
           return false;
         }
       } else {
-        _logger.w('❌ Utilisateur a refusé de se connecter');
+        _logger.w('Utilisateur a refusé de se connecter');
         return false;
       }
     }
@@ -295,28 +277,30 @@ class OwnershipGuard {
     String? resourceType;
 
     if (lieu != null) {
-      isOwner = isLieuOwner(context, lieu);
+      isOwner = isLieuOwner(ctx, lieu);
       resourceType = 'lieu';
     } else if (evenement != null) {
-      isOwner = isEvenementOwner(context, evenement);
+      isOwner = isEvenementOwner(ctx, evenement);
       resourceType = 'événement';
 
-      // ✅ 3. NOUVEAU : Vérifier si l'événement est terminé (seulement pour modification)
+      //  Vérifier si l'événement est terminé (seulement pour modification)
       if (isOwner && action == 'modifier' && isEvenementTermine(evenement)) {
-        if (context.mounted) {
-          await showEvenementTermineDialog(context, evenement);
-        }
+        if (!ctx.mounted) return false;
+        await showEvenementTermineDialog(ctx, evenement);
+        if (!ctx.mounted) return false;
         return false;
       }
     }
 
-    if (!isOwner && context.mounted) {
-      _logger.w('❌ N\'est pas propriétaire - dialogue d\'erreur');
-      await showNotOwnerDialog(context, resourceType: resourceType);
+    if (!isOwner) {
+      if (!ctx.mounted) return false;
+      _logger.w('N\'est pas propriétaire - dialogue d\'erreur');
+      await showNotOwnerDialog(ctx, resourceType: resourceType);
+      if (!ctx.mounted) return false;
       return false;
     }
 
-    _logger.i('✅ Action autorisée');
+    _logger.i('Action autorisée');
     return true;
   }
 
@@ -348,7 +332,7 @@ class OwnershipGuard {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -411,7 +395,7 @@ extension OwnershipGuardExtension on BuildContext {
     );
   }
 
-  /// ✅ MODIFIÉ : Vérifier si l'utilisateur peut modifier un événement (avec vérification de date)
+  /// Vérifier si l'utilisateur peut modifier un événement (avec vérification de date)
   Future<bool> canEditEvenement(EvenementEntity evenement) {
     return OwnershipGuard.checkOwnershipForAction(
       context: this,
@@ -436,7 +420,7 @@ class OwnerOnly extends StatelessWidget {
   final EvenementEntity? evenement;
   final Widget child;
   final Widget? fallback;
-  final bool checkEvenementDate; // ✅ NOUVEAU paramètre
+  final bool checkEvenementDate;
 
   const OwnerOnly({
     super.key,
@@ -444,7 +428,7 @@ class OwnerOnly extends StatelessWidget {
     this.evenement,
     required this.child,
     this.fallback,
-    this.checkEvenementDate = false, // Par défaut false pour la suppression
+    this.checkEvenementDate = false, 
   }) : assert(
          lieu != null || evenement != null,
          'Either lieu or evenement must be provided',
@@ -458,7 +442,7 @@ class OwnerOnly extends StatelessWidget {
       isOwner = OwnershipGuard.isLieuOwner(context, lieu!);
     } else if (evenement != null) {
       if (checkEvenementDate) {
-        // ✅ Pour la modification : vérifier la date
+        // Pour la modification : vérifier la date
         isOwner = OwnershipGuard.canEditEvenement(context, evenement!);
       } else {
         // Pour la suppression : juste vérifier la propriété
@@ -499,7 +483,7 @@ class OwnershipEditButton extends StatelessWidget {
     return OwnerOnly(
       lieu: lieu,
       evenement: evenement,
-      checkEvenementDate: true, // ✅ Vérifier la date pour l'édition
+      checkEvenementDate: true, 
       child: IconButton(
         icon: Icon(icon),
         tooltip: tooltip ?? 'Modifier',
@@ -545,7 +529,7 @@ class OwnershipDeleteButton extends StatelessWidget {
     return OwnerOnly(
       lieu: lieu,
       evenement: evenement,
-      checkEvenementDate: false, // ✅ Ne pas vérifier la date pour la suppression
+      checkEvenementDate: false, 
       child: IconButton(
         icon: Icon(icon, color: AppColors.error),
         tooltip: tooltip ?? 'Supprimer',

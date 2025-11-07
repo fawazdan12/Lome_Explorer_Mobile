@@ -42,7 +42,7 @@ class _LieuEditPageState extends State<LieuEditPage> {
   @override
   void initState() {
     super.initState();
-    // ✅ Vérifier l'authentification et la propriété
+    // Vérifier l'authentification et la propriété
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOwnership();
     });
@@ -232,7 +232,7 @@ class _LieuEditPageState extends State<LieuEditPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -289,9 +289,8 @@ class _LieuEditPageState extends State<LieuEditPage> {
     );
   }
 
-  // ✅ CORRECTION : Utiliser GetIt au lieu de context.read
   void _handleSubmit() async {
-    // ✅ Double vérification avant soumission
+    // Double vérification avant soumission
     final canEdit = await context.canEditLieu(widget.lieu);
     if (!canEdit) {
       if (mounted) {
@@ -313,7 +312,6 @@ class _LieuEditPageState extends State<LieuEditPage> {
       final latitude = double.parse(_latitudeController.text.trim());
       final longitude = double.parse(_longitudeController.text.trim());
 
-      // ✅ CORRECTION : Utiliser GetIt
       await getit.getIt<LieuEvenementService>().updateLieu(
         id: widget.lieu.id,
         nom: nom,

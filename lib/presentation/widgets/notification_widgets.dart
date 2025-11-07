@@ -238,7 +238,7 @@ class NotificationTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getNotificationColor(notification).withOpacity(0.1),
+                  color: _getNotificationColor(notification).withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -353,7 +353,7 @@ class WebSocketStatusIndicator extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getStateColor(state).withOpacity(0.1),
+            color: _getStateColor(state).withAlpha((255 * 0.1).round()),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: _getStateColor(state),
@@ -472,8 +472,8 @@ class WebSocketControlPanel extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: provider.isConnected
-                            ? AppColors.success.withOpacity(0.1)
-                            : AppColors.error.withOpacity(0.1),
+                            ? AppColors.success.withAlpha((255 * 0.1).round())
+                            : AppColors.error.withAlpha((255 * 0.1).round()),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -568,7 +568,7 @@ class WebSocketControlPanel extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
+                      color: AppColors.error.withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -705,7 +705,7 @@ class _StatRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(

@@ -26,7 +26,7 @@ class AppTheme {
     // Navigation Bar
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.white,
-      indicatorColor: AppColors.primaryOrange.withOpacity(0.2),
+      indicatorColor: AppColors.primaryOrange.withAlpha((255 * 0.2).round()),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return const TextStyle(
@@ -170,7 +170,7 @@ class AppTheme {
     // Navigation Bar
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: const Color(0xFF1F1F1F),
-      indicatorColor: AppColors.primaryOrange.withOpacity(0.3),
+      indicatorColor: AppColors.primaryOrange.withAlpha((255 * 0.3).round()),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return const TextStyle(

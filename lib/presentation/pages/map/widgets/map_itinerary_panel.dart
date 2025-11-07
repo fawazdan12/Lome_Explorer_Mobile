@@ -30,7 +30,7 @@ class MapItineraryPanel extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withAlpha((255 * 0.2).round()),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -133,7 +133,7 @@ class MapItineraryPanel extends StatelessWidget {
           // Instructions
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: AppColors.primaryBlue.withOpacity(0.1),
+            color: AppColors.primaryBlue.withAlpha((255 * 0.1).round()),
             child: Row(
               children: [
                 Icon(
@@ -182,7 +182,7 @@ class MapItineraryPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha((255 * 0.1).round()),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

@@ -28,9 +28,9 @@ class CrudWithNotifications {
     required double latitude,
     required double longitude,
   }) async {
-    _logger.i('🏗️ Création lieu avec notifications: $nom');
+    _logger.i('Création lieu avec notifications: $nom');
 
-    // 1. Créer le lieu
+    // Création de lieu
     final lieu = await _service.createLieu(
       nom: nom,
       description: description,
@@ -39,14 +39,14 @@ class CrudWithNotifications {
       longitude: longitude,
     );
 
-    // 2. Déclencher la notification (le serveur Django s'en charge)
-    _logger.i('✅ Lieu créé, notification envoyée par Django');
+    // Déclencher la notification (le serveur Django s'en charge)
+    _logger.i('Lieu créé, notification envoyée par Django');
     
-    // 3. Vérifier la connexion WebSocket
+    // Vérification la connexion WebSocket
     if (context.mounted) {
       final notifProvider = context.read<NotificationProvider>();
       if (!notifProvider.isConnected) {
-        _logger.w('⚠️ WebSocket non connecté, connexion...');
+        _logger.w('WebSocket non connecté, connexion...');
         await notifProvider.connectToGeneral();
       }
     }
@@ -64,7 +64,7 @@ class CrudWithNotifications {
     required double latitude,
     required double longitude,
   }) async {
-    _logger.i('✏️ Modification lieu avec notifications: $nom');
+    _logger.i('Modification lieu avec notifications: $nom');
 
     final lieu = await _service.updateLieu(
       id: id,
@@ -75,7 +75,7 @@ class CrudWithNotifications {
       longitude: longitude,
     );
 
-    _logger.i('✅ Lieu modifié, notification envoyée par Django');
+    _logger.i('Lieu modifié, notification envoyée par Django');
     return lieu;
   }
 
@@ -84,11 +84,11 @@ class CrudWithNotifications {
     required BuildContext context,
     required String id,
   }) async {
-    _logger.i('🗑️ Suppression lieu avec notifications: $id');
+    _logger.i('Suppression lieu avec notifications: $id');
 
     await _service.deleteLieu(id);
 
-    _logger.i('✅ Lieu supprimé, notification envoyée par Django');
+    _logger.i('Lieu supprimé, notification envoyée par Django');
   }
 
   // ==================== ÉVÉNEMENTS ====================
@@ -102,7 +102,7 @@ class CrudWithNotifications {
     required DateTime dateFin,
     required String lieuId,
   }) async {
-    _logger.i('🏗️ Création événement avec notifications: $nom');
+    _logger.i('Création événement avec notifications: $nom');
 
     final evenement = await _service.createEvenement(
       nom: nom,
@@ -112,7 +112,7 @@ class CrudWithNotifications {
       lieuId: lieuId,
     );
 
-    _logger.i('✅ Événement créé, notification envoyée par Django');
+    _logger.i('Événement créé, notification envoyée par Django');
 
     // Vérifier la connexion WebSocket
     if (context.mounted) {
@@ -135,7 +135,7 @@ class CrudWithNotifications {
     required DateTime dateFin,
     required String lieuId,
   }) async {
-    _logger.i('✏️ Modification événement avec notifications: $nom');
+    _logger.i('Modification événement avec notifications: $nom');
 
     final evenement = await _service.updateEvenement(
       id: id,
@@ -146,7 +146,7 @@ class CrudWithNotifications {
       lieuId: lieuId,
     );
 
-    _logger.i('✅ Événement modifié, notification envoyée par Django');
+    _logger.i('Événement modifié, notification envoyée par Django');
     return evenement;
   }
 
@@ -155,10 +155,10 @@ class CrudWithNotifications {
     required BuildContext context,
     required String id,
   }) async {
-    _logger.i('🗑️ Suppression événement avec notifications: $id');
+    _logger.i('Suppression événement avec notifications: $id');
 
     await _service.deleteEvenement(id);
 
-    _logger.i('✅ Événement supprimé, notification envoyée par Django');
+    _logger.i('Événement supprimé, notification envoyée par Django');
   }
 }

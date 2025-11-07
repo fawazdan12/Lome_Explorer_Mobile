@@ -34,10 +34,6 @@ class LieuSearchNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Notifier pour les paramètres de recherche des événements
@@ -64,10 +60,6 @@ class EvenementSearchNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 // ==================== LIEUX NOTIFIER ====================
@@ -364,10 +356,6 @@ class ProximitySearchNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Notifier pour les lieux à proximité
@@ -601,8 +589,4 @@ class CacheNotifier extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

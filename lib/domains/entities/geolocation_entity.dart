@@ -6,7 +6,7 @@ class LocationEntity extends Equatable {
   final String? address;
   final String? city;
   final String? quartier;
-  final String source; // 'gps', 'ip', 'default'
+  final String source; 
 
   const LocationEntity({
     required this.latitude,
@@ -34,7 +34,7 @@ class NearbyPlaceEntity extends Equatable {
   final String categorie;
   final double latitude;
   final double longitude;
-  final double distance; // en km
+  final double distance; 
   final int nombreEvenements;
 
   const NearbyPlaceEntity({
